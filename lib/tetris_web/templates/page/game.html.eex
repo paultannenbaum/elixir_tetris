@@ -1,7 +1,7 @@
 <h1>New Game</h1>
 
 <div id="game-board">
-    <%= create_board_cells(50, 60) %>
+    <%= board_as_html(@board) %>
 </div>
 
 
