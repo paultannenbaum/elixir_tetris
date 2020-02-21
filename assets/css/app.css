@@ -1,3 +1,23 @@
 /* This file is for your main application css. */
 
 @import "./phoenix.css";
+
+h1 {
+    text-align: center;
+}
+
+#game-board {
+    margin: 0 auto;
+    width: 510px;
+    background: black;
+    display: flex;
+    flex-wrap: wrap;
+    outline: 2px solid #000;
+}
+
+.cell {
+    width: 10px;
+    height: 10px;
+    outline: 1px solid #ddd;
+    background: #fff;
+}
