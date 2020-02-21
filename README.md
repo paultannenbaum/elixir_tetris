@@ -19,18 +19,13 @@ Most likely will not be included:
 
 Milestones:
 
-1) Render Board to DOM
+1) [x] Render Board to DOM
 
-2) Render Piece inside of Board
+2) [ ] Render Piece inside of Board/ Piece falls down the board
 
-3) Piece falls down the board
+3) [ ] Piece logic: movable and rotatable by user
 
-4) Piece is movable and rotatable by user
-
-5) Piece stacks when hitting bottom
-
-6) Render logic: allowing pieces to fit, removing lines, etc.
-
+4) [ ] Board Logic: allowing pieces to fit, removing lines, etc. 
 
 # Running the game
 
