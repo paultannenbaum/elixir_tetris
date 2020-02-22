@@ -23,6 +23,7 @@ defmodule TetrisWeb do
 
       import Plug.Conn
       import TetrisWeb.Gettext
+      import Phoenix.LiveView.Controller
       alias TetrisWeb.Router.Helpers, as: Routes
     end
   end
@@ -41,6 +42,7 @@ defmodule TetrisWeb do
 
       import TetrisWeb.ErrorHelpers
       import TetrisWeb.Gettext
+      import Phoenix.LiveView.Controller
       alias TetrisWeb.Router.Helpers, as: Routes
     end
   end
@@ -50,6 +52,7 @@ defmodule TetrisWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import Phoenix.LiveView.Controller
     end
   end
 

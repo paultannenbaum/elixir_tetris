@@ -22,6 +22,7 @@
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/phoenix_ecto" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/phoenix_html" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/phoenix_live_reload" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/phoenix_live_view" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/phoenix_pubsub" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/plug" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/plug_cowboy" />
