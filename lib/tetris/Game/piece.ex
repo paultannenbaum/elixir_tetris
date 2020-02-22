@@ -31,15 +31,15 @@ defmodule Tetris.Piece do
 
   ## Private
 
-  defp mirror_piece_x_axis do
+  defp mirror_piece_x_axis(piece) do
 
   end
 
-  def mirror_piece_y_axis do
+  def mirror_piece_y_axis(piece) do
 
   end
 
-  def mirror_piece_x_y_axis do
+  def mirror_piece_x_y_axis(piece) do
 
   end
 end

@@ -1,7 +1,7 @@
 defmodule Tetris.Board do
   defstruct board_status: 'closed', score: 0, cells: []
 
-  def generate_board_cells(num_x \\ 50, num_y \\ 60) do
+  def generate_board_cells(num_x \\ 25, num_y \\ 30) do
      for x <- 0..num_x,
          y <- 0..num_y,
      do: %{x: x, y: y, color: 'white'}
