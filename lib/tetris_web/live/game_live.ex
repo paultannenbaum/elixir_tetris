@@ -5,8 +5,10 @@ defmodule TetrisWeb.GameLive do
   alias TetrisWeb.GameView
 
   def mount(_params, _session, socket) do
-    if connected?(socket), do: Process.send_after(self(), :game_start, 0)
-    {:ok, assign(socket, board: Game.new_board())}
+    socket = assign(socket, board: Game.new_board())
+
+    if connected?(socket), do: Process.send(self(), :game_start, [])
+    {:ok, socket}
   end
 
   def render(assigns) do
@@ -19,18 +21,24 @@ defmodule TetrisWeb.GameLive do
   end
 
   def handle_info(:game_start, socket) do
-    Process.send_after(self(), :game_loop, 0)
-    {:noreply, assign(socket, %{})}
+    Process.send(self(), :game_loop, [])
+    {:noreply, socket}
   end
 
   def handle_info(:game_loop, socket) do
     Process.send_after(self(), :game_loop, 1000)
 
+    board = Game.update_board_coord(
+      socket.assigns.board,
+      Enum.random(socket.assigns.board.cells),
+      'black'
+    )
+
     # compute next state
     # validate next state
     # render next state
 
-    {:noreply, assign(socket, %{})}
+    {:noreply, assign(socket, board: board)}
   end
 
   def handle_event("game_start", %{}, socket) do

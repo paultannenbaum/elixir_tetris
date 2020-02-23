@@ -22,3 +22,7 @@ h1 {
     outline: 1px solid #ddd;
     background: #fff;
 }
+
+.black {
+    background: #000;
+}
