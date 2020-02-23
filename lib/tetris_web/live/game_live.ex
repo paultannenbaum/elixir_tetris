@@ -1,10 +1,11 @@
 defmodule TetrisWeb.GameLive do
   use Phoenix.LiveView
 
-  import Phoenix.HTML.Tag
   alias Tetris.Game
+  alias TetrisWeb.GameView
 
   def mount(_params, _session, socket) do
+    if connected?(socket), do: Process.send_after(self(), :game_start, 0)
     {:ok, assign(socket, board: Game.new_board())}
   end
 
@@ -12,19 +13,46 @@ defmodule TetrisWeb.GameLive do
     ~L"""
     <h1>New Game</h1>
     <div id="game-board">
-      <%= board_as_html(@board) %>
+      <%= GameView.board_as_html(@board) %>
     </div>
     """
   end
 
-  def handle_event("keydown", %{"key" => key}, socket) do
-    {:noreply, assign(socket, msg: key)}
+  def handle_info(:game_start, socket) do
+    Process.send_after(self(), :game_loop, 0)
+    {:noreply, assign(socket, %{})}
   end
 
-  def board_as_html(board) do
-    board.cells
-    |> Enum.sort(&(&1.y >= &2.y))
-    |> Enum.map(fn %{x: x, y: y, color: color} ->
-      content_tag :span, "", [{:data, [x: x]}, {:data, [y: y]}, class: "cell #{color}"] end)
+  def handle_info(:game_loop, socket) do
+    Process.send_after(self(), :game_loop, 1000)
+
+    # compute next state
+    # validate next state
+    # render next state
+
+    {:noreply, assign(socket, %{})}
+  end
+
+  def handle_event("game_start", %{}, socket) do
+
+    # {:noreply, assign(socket, msg: key)}
+  end
+
+  def handle_event("game_end", %{}, socket) do
+  end
+
+  def handle_event("piece_down", %{}, socket) do
+  end
+
+  def handle_event("piece_left", %{}, socket) do
+  end
+
+  def handle_event("piece_right", %{}, socket) do
+  end
+
+  def handle_event("rotate_piece_clockwise", %{}, socket) do
+  end
+
+  def handle_event("rotate_piece_counter_clockwise", %{}, socket) do
   end
 end

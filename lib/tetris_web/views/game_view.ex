@@ -1,8 +1,6 @@
 defmodule TetrisWeb.GameView do
   use TetrisWeb, :view
 
-  import Phoenix.HTML.Tag
-
   # translates board object into something the DOM can understand
   def board_as_html(board) do
     board.cells
