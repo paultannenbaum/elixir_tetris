@@ -1,5 +1,6 @@
 defmodule TetrisWeb.Router do
   use TetrisWeb, :router
+  import Phoenix.LiveView.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -19,6 +20,7 @@ defmodule TetrisWeb.Router do
 
     get "/", PageController, :index
     get "/new_game", PageController, :game
+    live "/foo", FooLive
   end
 
   # Other scopes may use custom stacks.
