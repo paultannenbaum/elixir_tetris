@@ -1,8 +1,8 @@
 defmodule Tetris.Game do
   alias Tetris.Board
 
-  def new_board do
-    %Board{board_status: 'open', cells: Board.generate_board_cells()}
+  def new_board(x \\ 25, y \\ 30) do
+    %Board{board_status: 'open', cells: Board.generate_board_cells(x, y)}
   end
 
   # Temp function, testing to see if this approach works

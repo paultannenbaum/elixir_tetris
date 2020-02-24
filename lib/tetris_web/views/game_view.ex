@@ -6,6 +6,6 @@ defmodule TetrisWeb.GameView do
     board.cells
     |> Enum.sort(&(&1.y >= &2.y))
     |> Enum.map(fn %{x: x, y: y, color: color} ->
-      content_tag :span, "", [{:data, [x: x]}, {:data, [y: y]}, class: "cell #{color}"] end)
+      content_tag :span, "", [{:data, [x: x]}, {:data, [y: y]}, class: "cell #{to_string color}"] end)
   end
 end

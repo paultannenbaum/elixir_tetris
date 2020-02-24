@@ -28,39 +28,41 @@ defmodule TetrisWeb.GameLive do
   def handle_info(:game_loop, socket) do
     Process.send_after(self(), :game_loop, 1000)
 
-    board = Game.update_board_coord(
-      socket.assigns.board,
-      Enum.random(socket.assigns.board.cells),
-      'black'
-    )
+    b1 = socket.assigns.board
+    random_cell = b1.cells
+                |> Enum.filter(fn x -> x.color === :white end)
+                |> Enum.random
+    b2 = Game.update_board_coord(b1, random_cell, :black)
 
     # compute next state
+
+
     # validate next state
     # render next state
 
-    {:noreply, assign(socket, board: board)}
+    {:noreply, assign(socket, board: b2)}
   end
 
-  def handle_event("game_start", %{}, socket) do
-
-    # {:noreply, assign(socket, msg: key)}
-  end
-
-  def handle_event("game_end", %{}, socket) do
-  end
-
-  def handle_event("piece_down", %{}, socket) do
-  end
-
-  def handle_event("piece_left", %{}, socket) do
-  end
-
-  def handle_event("piece_right", %{}, socket) do
-  end
-
-  def handle_event("rotate_piece_clockwise", %{}, socket) do
-  end
-
-  def handle_event("rotate_piece_counter_clockwise", %{}, socket) do
-  end
+#  def handle_event("game_start", %{}, socket) do
+#
+#    # {:noreply, assign(socket, msg: key)}
+#  end
+#
+#  def handle_event("game_end", %{}, socket) do
+#  end
+#
+#  def handle_event("piece_down", %{}, socket) do
+#  end
+#
+#  def handle_event("piece_left", %{}, socket) do
+#  end
+#
+#  def handle_event("piece_right", %{}, socket) do
+#  end
+#
+#  def handle_event("rotate_piece_clockwise", %{}, socket) do
+#  end
+#
+#  def handle_event("rotate_piece_counter_clockwise", %{}, socket) do
+#  end
 end
