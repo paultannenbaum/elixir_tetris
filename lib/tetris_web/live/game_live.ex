@@ -5,7 +5,12 @@ defmodule TetrisWeb.GameLive do
   alias TetrisWeb.GameView
 
   def mount(_params, _session, socket) do
-    socket = assign(socket, board: Game.new_board())
+    board = Game.new_board()
+    piece = Game.new_piece(board)
+
+    updated_board = Game.set_piece_on_board(board, piece)
+
+    socket = assign(socket, board: updated_board)
 
     if connected?(socket), do: Process.send(self(), :game_start, [])
     {:ok, socket}
