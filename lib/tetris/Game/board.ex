@@ -1,22 +1,33 @@
-defmodule Tetris.Board do
-  defstruct board_status: 'closed', score: 0, cells: []
+defmodule Tetris.Game.Board do
+  defstruct board_status: :closed,
+            score: 0,
+            cells: [],
+            x_max: 0,
+            y_max: 0
+  @type board :: %__MODULE__{
+               board_status: atom,
+               score: integer,
+               cells: [map],
+               x_max: integer,
+               y_max: integer
+             }
 
-  def generate_board_cells(num_x, num_y) do
-     for x <- 0..num_x,
-         y <- 0..num_y,
-     do: %{x: x, y: y, color: :white}
+
+  @spec create_new(integer, integer) :: board
+  def create_new(x_max, y_max) do
+    %__MODULE__{
+      x_max: x_max,
+      y_max: y_max,
+      cells: generate_board_cells(x_max, y_max),
+      board_status: :open
+    }
   end
 
-  def update_cell_color(board, coord, color) do
-    updated_cells = board.cells
-    |> Enum.map(fn cell ->
-      if (cell.x === coord.x and cell.y === coord.y) do
-        %{cell | color: color}
-      else
-        cell
-      end
-    end)
 
-    %{board | cells: updated_cells}
+  @spec generate_board_cells(integer, integer) :: [map]
+  defp generate_board_cells(x_max, y_max) do
+    for x <- 0..x_max,
+        y <- 0..y_max,
+        do: %{x: x, y: y, color: :white}
   end
 end

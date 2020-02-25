@@ -32,7 +32,7 @@ defmodule TetrisWeb.GameLive do
     random_cell = b1.cells
                 |> Enum.filter(fn x -> x.color === :white end)
                 |> Enum.random
-    b2 = Game.update_board_coord(b1, random_cell, :black)
+#    b2 = Game.update_board_coord(b1, random_cell, :black)
 
     # compute next state
 
@@ -40,7 +40,7 @@ defmodule TetrisWeb.GameLive do
     # validate next state
     # render next state
 
-    {:noreply, assign(socket, board: b2)}
+    {:noreply, assign(socket, board: b1)}
   end
 
 #  def handle_event("game_start", %{}, socket) do

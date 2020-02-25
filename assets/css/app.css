@@ -24,5 +24,21 @@ h1 {
 }
 
 .black {
-    background: #000;
+    background: black;
+}
+
+.blue {
+    background: blue;
+}
+
+.green {
+    background: green;
+}
+
+.red {
+    background: red;
+}
+
+.yellow {
+    background: yellow;
 }
