@@ -1,16 +1,17 @@
 defmodule TetrisWeb.GameLive do
+  @moduledoc """
+    In charge of connecting the LiveView to the DOM, handling events and translating events
+    into actions taken by the Game context. No actual game logic should be handled by this module,
+    instead this should be pushed into the Game context.
+  """
+
   use Phoenix.LiveView
 
   alias Tetris.Game
   alias TetrisWeb.GameView
 
-  @default_state %{board: nil, active_piece: nil}
-  @speed 400
-
   def mount(_params, _session, socket) do
-    state = %{@default_state | board: Game.new_board()}
-    socket = assign(socket, state)
-
+    socket = assign(socket, game: Game.new_game())
     if connected?(socket), do: Process.send(self(), :game_start, [])
     {:ok, socket}
   end
@@ -19,29 +20,21 @@ defmodule TetrisWeb.GameLive do
     ~L"""
     <h1>New Game</h1>
     <div id="game-board">
-      <%= GameView.board_as_html(@board) %>
+      <%= GameView.board_as_html(@game.board) %>
     </div>
     """
   end
 
   def handle_info(:game_start, socket) do
-    {:ok, {b1, p1}} = Game.add_new_piece_to_board(socket.assigns.board)
-    socket = assign(socket, board: b1, active_piece: p1)
-
+    game = socket.assigns.game
     Process.send(self(), :game_loop, [])
-    {:noreply, socket}
+    {:noreply, assign(socket, game: Game.start_game(game))}
   end
 
   def handle_info(:game_loop, socket) do
-    %{board: b1, active_piece: p1} = socket.assigns
-
-    # TODO: handle_different states
-    {b2, p2} = case Game.move_piece_down(b1, p1) do
-      {:ok, {b, p}} -> {b, p}
-    end
-
-    Process.send_after(self(), :game_loop, @speed)
-    {:noreply, assign(socket, board: b2, active_piece: p2)}
+    game = socket.assigns.game
+    Process.send_after(self(), :game_loop, game.speed)
+    {:noreply, assign(socket, game: Game.move_piece_down(game))}
   end
 
 #  def handle_event("game_start", %{}, socket) do

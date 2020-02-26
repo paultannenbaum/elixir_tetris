@@ -3,6 +3,7 @@ defmodule Tetris.Game.Piece do
             rotation: 0,
             color: :blue,
             coords: []
+
   @type piece :: %__MODULE__{
                type: atom,
                rotation: integer,

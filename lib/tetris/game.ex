@@ -1,66 +1,93 @@
 defmodule Tetris.Game do
   @moduledoc """
-  Game context holds all the business logic for game play. This includes board state management, piece movement, and scoring
+    Game context holds all the business logic for game play. This includes board state management,
+    piece movement, and scoring
   """
+
+  defstruct board: nil,
+            active_piece: nil,
+            score: 0,
+            status: :closed,
+            speed: 400
 
   alias Tetris.Game.Board
   alias Tetris.Game.Piece
 
+  @type game  :: %__MODULE__{}
   @type board :: %Board{}
   @type piece :: %Piece{}
 
-  @spec new_board(integer, integer) :: board
-  def new_board(x \\ 25, y \\ 30) do
-    Board.create_new(x, y)
+  @x_cells 25
+  @y_cells 30
+
+
+
+  @spec new_game() :: game
+  def new_game() do
+    %__MODULE__{board: Board.create_new(@x_cells, @y_cells)}
   end
 
-  @spec new_piece(board) :: piece
-  def new_piece(board) do
-    Piece.create_new(board.x_max, board.y_max)
-  end
-
-  # TODO: Handle failure state
-  def add_new_piece_to_board(board) do
-    piece = new_piece(board)
-
-    case set_piece_on_board(board, piece) do
-      {:ok, {board, piece}} -> {:ok, {board, piece}}
-      {:error, msg } -> IO.puts('Handle failure case')
-    end
-  end
-
-  # TODO: Handle failure state
-  def move_piece_down(board, piece) do
-    {_, {b1, _}} = board |> remove_piece_from_board(piece)
-    p1 = Piece.down(piece)
-    {_, {b2, p2}} = set_piece_on_board(b1, p1)
-
-    {:ok, {b2, p2}}
+  @spec start_game(game) :: game
+  def start_game(game) do
+    g1 = Map.merge(game, %{
+      active_piece: Piece.create_new(@x_cells, @y_cells),
+      status: :open
+    })
+    {:ok, g2} = set_piece_on_board(g1)
+    g2
   end
 
   # TODO: Handle failure state
-  defp set_piece_on_board(board, piece) do
-    updated_cells = Enum.map(board.cells, fn c ->
-      if (Enum.member?(piece.coords, Map.take(c, [:x, :y]))) do
-        %{c | color: piece.color}
+  @spec move_piece_down(game) :: game
+  def move_piece_down(game) do
+    # create new state
+    {:ok, g1} = remove_piece_from_board(game)
+    p1 = Piece.down(game.active_piece)
+    g2 = Map.merge(game, %{
+      board: g1.board,
+      active_piece: p1
+    })
+
+    # validate state
+    # insert new state if valid
+    {:ok, g3} = set_piece_on_board(g2)
+    g3
+  end
+
+  # Private
+  # TODO: Handle failure state
+  @spec set_piece_on_board(game) :: atom
+  defp set_piece_on_board(game) do
+    %{board: b, active_piece: p} = game
+
+    c1 = Enum.map(b.cells, fn c ->
+      if (Enum.member?(p.coords, Map.take(c, [:x, :y]))) do
+        %{c | color: p.color}
       else
         c
       end
     end)
+    b1 = %{b | cells: c1}
+    g1 = %{game | board: b1}
 
-    {:ok, {%{board | cells: updated_cells}, piece}}
+    {:ok, g1}
   end
 
   # TODO: Handle failure state
-  defp remove_piece_from_board(board, piece) do
-    updated_cells = Enum.map(board.cells, fn c ->
-      if (Enum.member?(piece.coords, Map.take(c, [:x, :y]))) do
+  @spec remove_piece_from_board(game) :: atom
+  defp remove_piece_from_board(game) do
+    %{board: b, active_piece: p} = game
+
+    c1 = Enum.map(b.cells, fn c ->
+      if (Enum.member?(p.coords, Map.take(c, [:x, :y]))) do
         %{c | color: :white}
       else
         c
       end
     end)
+    b1 = %{b | cells: c1}
+    g1 = %{game | board: b1}
 
-    {:ok, {%{board | cells: updated_cells}, piece}}
+    {:ok, g1}
   end
 end

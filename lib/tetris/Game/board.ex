@@ -1,28 +1,14 @@
 defmodule Tetris.Game.Board do
-  defstruct board_status: :closed,
-            score: 0,
-            cells: [],
-            x_max: 0,
-            y_max: 0
-  @type board :: %__MODULE__{
-               board_status: atom,
-               score: integer,
-               cells: [map],
-               x_max: integer,
-               y_max: integer
-             }
+  defstruct cells: []
 
+  @type board :: %__MODULE__{ cells: [map] }
 
   @spec create_new(integer, integer) :: board
-  def create_new(x_max, y_max) do
+  def create_new(x, y) do
     %__MODULE__{
-      x_max: x_max,
-      y_max: y_max,
-      cells: generate_board_cells(x_max, y_max),
-      board_status: :open
+      cells: generate_board_cells(x, y)
     }
   end
-
 
   @spec generate_board_cells(integer, integer) :: [map]
   defp generate_board_cells(x_max, y_max) do
