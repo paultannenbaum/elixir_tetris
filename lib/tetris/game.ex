@@ -19,24 +19,27 @@ defmodule Tetris.Game do
     Piece.create_new(board.x_max, board.y_max)
   end
 
-#  @spec set_piece_on_board(board, piece) :: {:ok, board} | {:error, t.String}
-  def set_piece_on_board(board, piece) do
-#    valid_cells =
-#      Enum.filter(board.cells, fn c -> Enum.member?(piece.coords, Map.take(c, [:x, :y]))end)
-#      |> Enum.all?(fn c -> c.color === :white end)
+  # TODO: Handle failure state
+  def add_new_piece_to_board(board) do
+    piece = new_piece(board)
 
-#    if (valid_cells) do
-#      %{board | cells: Enum.map(board.cells, fn c ->
-#        if (Enum.member?(piece.coords, Map.take(c, [:x, :y]))) do
-#          %{c | color: piece.color}
-#        else
-#          c
-#        end
-#      end)}
-#    else
-#      {:error, "invalid move"}
-#    end
+    case set_piece_on_board(board, piece) do
+      {:ok, {board, piece}} -> {:ok, {board, piece}}
+      {:error, msg } -> IO.puts('Handle failure case')
+    end
+  end
 
+  # TODO: Handle failure state
+  def move_piece_down(board, piece) do
+    {_, {b1, _}} = board |> remove_piece_from_board(piece)
+    p1 = Piece.down(piece)
+    {_, {b2, p2}} = set_piece_on_board(b1, p1)
+
+    {:ok, {b2, p2}}
+  end
+
+  # TODO: Handle failure state
+  defp set_piece_on_board(board, piece) do
     updated_cells = Enum.map(board.cells, fn c ->
       if (Enum.member?(piece.coords, Map.take(c, [:x, :y]))) do
         %{c | color: piece.color}
@@ -45,14 +48,19 @@ defmodule Tetris.Game do
       end
     end)
 
-    %{board | cells: updated_cells}
+    {:ok, {%{board | cells: updated_cells}, piece}}
   end
 
-    @spec move_piece_down(%Board{}, %Piece{}) :: map
-    def move_piece_down(board, piece) do
-      piece = piece |> Piece.down
-      board = set_piece_on_board(board, piece)
+  # TODO: Handle failure state
+  defp remove_piece_from_board(board, piece) do
+    updated_cells = Enum.map(board.cells, fn c ->
+      if (Enum.member?(piece.coords, Map.take(c, [:x, :y]))) do
+        %{c | color: :white}
+      else
+        c
+      end
+    end)
 
-      %{board: board, piece: piece}
-    end
+    {:ok, {%{board | cells: updated_cells}, piece}}
+  end
 end

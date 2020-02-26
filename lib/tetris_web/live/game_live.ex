@@ -4,14 +4,12 @@ defmodule TetrisWeb.GameLive do
   alias Tetris.Game
   alias TetrisWeb.GameView
 
+  @default_state %{board: nil, active_piece: nil}
+  @speed 400
+
   def mount(_params, _session, socket) do
-    board = Game.new_board()
-    active_piece = Game.new_piece(board)
-
-    # place the piece on the board
-    updated_board = Game.set_piece_on_board(board, active_piece)
-
-    socket = assign(socket, board: updated_board, active_piece: active_piece)
+    state = %{@default_state | board: Game.new_board()}
+    socket = assign(socket, state)
 
     if connected?(socket), do: Process.send(self(), :game_start, [])
     {:ok, socket}
@@ -27,20 +25,22 @@ defmodule TetrisWeb.GameLive do
   end
 
   def handle_info(:game_start, socket) do
+    {:ok, {b1, p1}} = Game.add_new_piece_to_board(socket.assigns.board)
+    socket = assign(socket, board: b1, active_piece: p1)
+
     Process.send(self(), :game_loop, [])
     {:noreply, socket}
   end
 
   def handle_info(:game_loop, socket) do
-    Process.send_after(self(), :game_loop, 300)
-
     %{board: b1, active_piece: p1} = socket.assigns
 
-    IO.inspect(socket.assigns)
+    # TODO: handle_different states
+    {b2, p2} = case Game.move_piece_down(b1, p1) do
+      {:ok, {b, p}} -> {b, p}
+    end
 
-    # TODO: Handle failure state
-    %{board: b2, piece: p2} = Game.move_piece_down(b1, p1)
-
+    Process.send_after(self(), :game_loop, @speed)
     {:noreply, assign(socket, board: b2, active_piece: p2)}
   end
 
