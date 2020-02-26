@@ -21,27 +21,38 @@ defmodule Tetris.Game do
 
 #  @spec set_piece_on_board(board, piece) :: {:ok, board} | {:error, t.String}
   def set_piece_on_board(board, piece) do
-    # TODO: Come back and validate
+#    valid_cells =
+#      Enum.filter(board.cells, fn c -> Enum.member?(piece.coords, Map.take(c, [:x, :y]))end)
+#      |> Enum.all?(fn c -> c.color === :white end)
 
-    valid_cells =
-      Enum.filter(board.cells, fn c -> Enum.member?(piece.coords, Map.take(c, [:x, :y]))end)
-      |> Enum.all?(fn c -> c.color === :white end)
+#    if (valid_cells) do
+#      %{board | cells: Enum.map(board.cells, fn c ->
+#        if (Enum.member?(piece.coords, Map.take(c, [:x, :y]))) do
+#          %{c | color: piece.color}
+#        else
+#          c
+#        end
+#      end)}
+#    else
+#      {:error, "invalid move"}
+#    end
 
-    if (valid_cells) do
-      %{board | cells: Enum.map(board.cells, fn c ->
-        if (Enum.member?(piece.coords, Map.take(c, [:x, :y]))) do
-          %{c | color: piece.color}
-        else
-          c
-        end
-      end)}
-    else
-      {:error, "invalid move"}
-    end
+    updated_cells = Enum.map(board.cells, fn c ->
+      if (Enum.member?(piece.coords, Map.take(c, [:x, :y]))) do
+        %{c | color: piece.color}
+      else
+        c
+      end
+    end)
+
+    %{board | cells: updated_cells}
   end
 
-  #  @spec move_piece_down(%Board{}, %Piece{}) :: atom
-  #  def move_piece_down(board, piece) do
-  #
-  #  end
+    @spec move_piece_down(%Board{}, %Piece{}) :: map
+    def move_piece_down(board, piece) do
+      piece = piece |> Piece.down
+      board = set_piece_on_board(board, piece)
+
+      %{board: board, piece: piece}
+    end
 end

@@ -6,11 +6,12 @@ defmodule TetrisWeb.GameLive do
 
   def mount(_params, _session, socket) do
     board = Game.new_board()
-    piece = Game.new_piece(board)
+    active_piece = Game.new_piece(board)
 
-    updated_board = Game.set_piece_on_board(board, piece)
+    # place the piece on the board
+    updated_board = Game.set_piece_on_board(board, active_piece)
 
-    socket = assign(socket, board: updated_board)
+    socket = assign(socket, board: updated_board, active_piece: active_piece)
 
     if connected?(socket), do: Process.send(self(), :game_start, [])
     {:ok, socket}
@@ -31,21 +32,16 @@ defmodule TetrisWeb.GameLive do
   end
 
   def handle_info(:game_loop, socket) do
-    Process.send_after(self(), :game_loop, 1000)
+    Process.send_after(self(), :game_loop, 300)
 
-    b1 = socket.assigns.board
-    random_cell = b1.cells
-                |> Enum.filter(fn x -> x.color === :white end)
-                |> Enum.random
-#    b2 = Game.update_board_coord(b1, random_cell, :black)
+    %{board: b1, active_piece: p1} = socket.assigns
 
-    # compute next state
+    IO.inspect(socket.assigns)
 
+    # TODO: Handle failure state
+    %{board: b2, piece: p2} = Game.move_piece_down(b1, p1)
 
-    # validate next state
-    # render next state
-
-    {:noreply, assign(socket, board: b1)}
+    {:noreply, assign(socket, board: b2, active_piece: p2)}
   end
 
 #  def handle_event("game_start", %{}, socket) do
