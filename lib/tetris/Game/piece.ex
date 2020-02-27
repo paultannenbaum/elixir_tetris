@@ -19,11 +19,15 @@ defmodule Tetris.Game.Piece do
   def create_new(x_max, y_max), do: create_new(x_max, y_max, Enum.random(@piece_types))
 
   @spec create_new(integer, integer, atom) :: piece
-  def create_new(x_max, y_max, t), do: %__MODULE__{
-    type: t.type,
-    color: t.color,
-    coords: initial_coords(x_max, y_max, t.type)
-  }
+  def create_new(x_max, y_max, t) do
+    %__MODULE__{
+      type: t.type,
+      color: t.color,
+      coords: initial_coords(x_max, y_max, t.type),
+    }
+  end
+
+
 
   @spec down(piece) :: piece
   def down(piece) do
@@ -39,14 +43,9 @@ defmodule Tetris.Game.Piece do
     %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.x + 1, y: c.y} end)}
   end
 
-  def rotate_clockwise(piece) do
-    max_x = Enum.map(piece.coords, fn x -> x.x end) |> Enum.max
-    max_y = Enum.map(piece.coords, fn x -> x.y end) |> Enum.max
-
-    %{piece | coords: Enum.map(piece.coords, fn c ->
-      %{x: (c.y + max_x - max_y), y: (c.x + max_y - max_x )}
-    end)}
-  end
+#  def rotate_clockwise(piece) do
+#
+#  end
 
 
 #  def rotate_counter_clockwise(piece) do
@@ -62,46 +61,28 @@ defmodule Tetris.Game.Piece do
   end
 
   def inverse(piece) do
-    max_x = Enum.map(piece.coords, fn x -> x.x end) |> Enum.max
-    max_y = Enum.map(piece.coords, fn x -> x.y end) |> Enum.max
-
     %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.y, y: c.x} end)}
   end
 
   @spec initial_coords(integer, integer, atom) :: [map]
   defp initial_coords(x_max, y_max, type) do
-    starting_y_coord = y_max
-    starting_x_coord = floor(x_max/2) - 2
+    start_x = floor(x_max/2) - 2
+    start_y = y_max
 
-    case type do
-      :i ->
-        [
-          %{x: starting_x_coord + 2, y: starting_y_coord - 0},
-          %{x: starting_x_coord + 2, y: starting_y_coord - 1},
-          %{x: starting_x_coord + 2, y: starting_y_coord - 2},
-          %{x: starting_x_coord + 2, y: starting_y_coord - 3}
-        ]
-      :t ->
-        [
-          %{x: starting_x_coord + 2, y: starting_y_coord - 0},
-          %{x: starting_x_coord + 1, y: starting_y_coord - 1},
-          %{x: starting_x_coord + 2, y: starting_y_coord - 1},
-          %{x: starting_x_coord + 3, y: starting_y_coord - 1},
-        ]
-      :z ->
-        [
-          %{x: starting_x_coord + 1, y: starting_y_coord - 0},
-          %{x: starting_x_coord + 2, y: starting_y_coord - 0},
-          %{x: starting_x_coord + 2, y: starting_y_coord - 1},
-          %{x: starting_x_coord + 3, y: starting_y_coord - 1},
-        ]
-      :l ->
-        [
-          %{x: starting_x_coord + 2, y: starting_y_coord - 0},
-          %{x: starting_x_coord + 2, y: starting_y_coord - 1},
-          %{x: starting_x_coord + 2, y: starting_y_coord - 2},
-          %{x: starting_x_coord + 3, y: starting_y_coord - 2},
-        ]
+    shape_points = case type do
+      :i -> [{2,0},{2,1},{2,2},{2,3}]
+      :t -> [{2,0},{1,1},{2,1},{3,1}]
+      :z -> [{1,0},{2,0},{2,1},{3,1}]
+      :l -> [{2,0},{2,1},{2,2},{3,2}]
     end
+
+    shape_points
+    |> Enum.map(fn {x, y} ->
+      %{
+        x: start_x + x,
+        y: start_y - y,
+        p: {x,y}
+      }
+    end)
   end
 end
