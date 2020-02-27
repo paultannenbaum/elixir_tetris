@@ -52,29 +52,44 @@ defmodule Tetris.Game.Piece do
   end
 
   def rotate_clockwise(piece) do
-    piece |> mirror_piece_x_axis
+    piece |> reflect_piece |> transpose_piece
   end
 
-
-#  def rotate_counter_clockwise(piece) do
-#
-#  end
-
-  defp mirror_piece_x_axis(piece) do
-    %{piece | coords: Enum.map(piece.coords, fn c ->
-      {px, py} = c.p
-      px1 = @p_length - px
-      %{x: c.x + px1, y: c.y, p: {px1, py}}
-    end)}
+  def rotate_counter_clockwise(piece) do
+    piece |> transpose_piece |> reflect_piece
   end
 
-  def mirror_piece_y_axis(piece) do
-    %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.x, y: 3 - c.y} end)}
+  @spec mirror_piece(piece) :: piece
+  defp mirror_piece(piece) do
+    new_points = get_points(piece) |> Enum.map(&mirror_point/1)
+
+    piece
+    |> update_piece_from_new_points(new_points)
   end
 
-  def inverse(piece) do
-    %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.y, y: c.x} end)}
+  @spec reflect_piece(piece) :: piece
+  defp reflect_piece(piece) do
+    new_points = get_points(piece) |> Enum.map(&reflect_point/1)
+
+    piece
+    |> update_piece_from_new_points(new_points)
   end
+
+  @spec transpose_piece(piece) :: piece
+  defp transpose_piece(piece) do
+    new_points = get_points(piece) |> Enum.map(&transpose_point/1)
+
+    piece
+    |> update_piece_from_new_points(new_points)
+  end
+
+  defp get_points(piece), do: Enum.map(piece.coords, fn c -> c.p end)
+
+  def mirror_point({px, py}), do: {@p_length - px, py}
+
+  def reflect_point({px, py}), do: {px, @p_length - py}
+
+  def transpose_point({px, py}), do: {py, px}
 
   @spec initial_coords(integer, integer, atom) :: [map]
   defp initial_coords(x_max, y_max, type) do
@@ -96,5 +111,21 @@ defmodule Tetris.Game.Piece do
         p: {x,y}
       }
     end)
+  end
+
+  @spec update_piece_from_new_points(piece, [tuple]) :: piece
+  defp update_piece_from_new_points(piece, points) do
+    updated_coords = Enum.zip(piece.coords, points)
+    |> Enum.map(fn {c, p} ->
+       {p1x, p1y} = c.p
+       {p2x, p2y} = p
+        Map.merge(c, %{
+          x: c.x + p2x - p1x,
+          y: c.y - p2y + p1y,
+          p: p
+        })
+    end)
+
+    %{piece | coords: updated_coords}
   end
 end
