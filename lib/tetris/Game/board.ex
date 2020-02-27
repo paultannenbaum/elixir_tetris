@@ -12,7 +12,7 @@ defmodule Tetris.Game.Board do
 
   @spec generate_board_cells(integer, integer) :: [map]
   defp generate_board_cells(x_max, y_max) do
-    for x <- 0..x_max,
+    cells = for x <- 0..x_max,
         y <- 0..y_max,
         do: %{x: x, y: y, color: :white}
   end

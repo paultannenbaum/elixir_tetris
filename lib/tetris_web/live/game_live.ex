@@ -18,8 +18,8 @@ defmodule TetrisWeb.GameLive do
 
   def render(assigns) do
     ~L"""
-    <h1>New Game</h1>
-    <div id="game-board">
+    <h1 phx-click="move_left">New Game</h1>
+    <div id="game-board" >
       <%= GameView.board_as_html(@game.board) %>
     </div>
     """
@@ -34,7 +34,12 @@ defmodule TetrisWeb.GameLive do
   def handle_info(:game_loop, socket) do
     game = socket.assigns.game
     Process.send_after(self(), :game_loop, game.speed)
-    {:noreply, assign(socket, game: Game.move_piece_down(game))}
+    {:noreply, assign(socket, game: Game.move_piece(game, :down))}
+  end
+
+  def handle_event("move_left", %{}, socket) do
+    game = socket.assigns.game
+    {:noreply, assign(socket, game: Game.move_piece(game, :rotate_clockwise))}
   end
 
 #  def handle_event("game_start", %{}, socket) do

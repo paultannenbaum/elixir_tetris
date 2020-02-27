@@ -1,12 +1,10 @@
 defmodule Tetris.Game.Piece do
   defstruct type: :i,
-            rotation: 0,
             color: :blue,
             coords: []
 
   @type piece :: %__MODULE__{
                type: atom,
-               rotation: integer,
                color: atom,
                coords: [map]
              }
@@ -14,7 +12,7 @@ defmodule Tetris.Game.Piece do
   @piece_types [
     %{type: :i, color: :blue},
     %{type: :t, color: :yellow},
-    %{type: :z, color: :greeen},
+    %{type: :z, color: :green},
     %{type: :l, color: :red}]
 
   @spec create_new(integer, integer) :: piece
@@ -32,36 +30,43 @@ defmodule Tetris.Game.Piece do
     %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.x, y: c.y - 1} end)}
   end
 
-  #
-  #  def left(piece) do
-  #
-  #  end
-  #
-  #  def right(piece) do
-  #
-  #  end
-  #
-  #  def rotate_clockwise(piece) do
-  #
-  #  end
-  #
-  #  def rotate_counter_clockwise(piece) do
-  #
-  #  end
-  #
-  #  ## Private
-  #
-  #  defp mirror_piece_x_axis(piece) do
-  #
-  #  end
-  #
-  #  def mirror_piece_y_axis(piece) do
-  #
-  #  end
-  #
-  #  def mirror_piece_x_y_axis(piece) do
-  #
-  #  end
+  @spec left(piece) :: [piece]
+  def left(piece) do
+    %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.x - 1, y: c.y} end)}
+  end
+
+  def right(piece) do
+    %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.x + 1, y: c.y} end)}
+  end
+
+  def rotate_clockwise(piece) do
+    max_x = Enum.map(piece.coords, fn x -> x.x end) |> Enum.max
+    max_y = Enum.map(piece.coords, fn x -> x.y end) |> Enum.max
+
+    %{piece | coords: Enum.map(piece.coords, fn c ->
+      %{x: (c.y + max_x - max_y), y: (c.x + max_y - max_x )}
+    end)}
+  end
+
+
+#  def rotate_counter_clockwise(piece) do
+#
+#  end
+
+  defp mirror_piece_x_axis(piece) do
+    %{piece | coords: Enum.map(piece.coords, fn c -> %{x: 3 - c.x, y: c.y} end)}
+  end
+
+  def mirror_piece_y_axis(piece) do
+    %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.x, y: 3 - c.y} end)}
+  end
+
+  def inverse(piece) do
+    max_x = Enum.map(piece.coords, fn x -> x.x end) |> Enum.max
+    max_y = Enum.map(piece.coords, fn x -> x.y end) |> Enum.max
+
+    %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.y, y: c.x} end)}
+  end
 
   @spec initial_coords(integer, integer, atom) :: [map]
   defp initial_coords(x_max, y_max, type) do
@@ -71,33 +76,31 @@ defmodule Tetris.Game.Piece do
     case type do
       :i ->
         [
-          %{x: starting_x_coord + 1, y: starting_y_coord - 0},
-          %{x: starting_x_coord + 1, y: starting_y_coord - 1},
-          %{x: starting_x_coord + 1, y: starting_y_coord - 2},
-          %{x: starting_x_coord + 1, y: starting_y_coord - 3}
+          %{x: starting_x_coord + 2, y: starting_y_coord - 0},
+          %{x: starting_x_coord + 2, y: starting_y_coord - 1},
+          %{x: starting_x_coord + 2, y: starting_y_coord - 2},
+          %{x: starting_x_coord + 2, y: starting_y_coord - 3}
         ]
       :t ->
         [
-          %{x: starting_x_coord + 1, y: starting_y_coord - 0},
-          %{x: starting_x_coord + 0, y: starting_y_coord - 1},
+          %{x: starting_x_coord + 2, y: starting_y_coord - 0},
           %{x: starting_x_coord + 1, y: starting_y_coord - 1},
           %{x: starting_x_coord + 2, y: starting_y_coord - 1},
+          %{x: starting_x_coord + 3, y: starting_y_coord - 1},
         ]
-
-      #TODO: Come back and fill
       :z ->
         [
           %{x: starting_x_coord + 1, y: starting_y_coord - 0},
-          %{x: starting_x_coord + 0, y: starting_y_coord - 1},
-          %{x: starting_x_coord + 1, y: starting_y_coord - 1},
+          %{x: starting_x_coord + 2, y: starting_y_coord - 0},
           %{x: starting_x_coord + 2, y: starting_y_coord - 1},
+          %{x: starting_x_coord + 3, y: starting_y_coord - 1},
         ]
       :l ->
         [
-          %{x: starting_x_coord + 1, y: starting_y_coord - 0},
-          %{x: starting_x_coord + 0, y: starting_y_coord - 1},
-          %{x: starting_x_coord + 1, y: starting_y_coord - 1},
+          %{x: starting_x_coord + 2, y: starting_y_coord - 0},
           %{x: starting_x_coord + 2, y: starting_y_coord - 1},
+          %{x: starting_x_coord + 2, y: starting_y_coord - 2},
+          %{x: starting_x_coord + 3, y: starting_y_coord - 2},
         ]
     end
   end

@@ -20,8 +20,6 @@ defmodule Tetris.Game do
   @x_cells 25
   @y_cells 30
 
-
-
   @spec new_game() :: game
   def new_game() do
     %__MODULE__{board: Board.create_new(@x_cells, @y_cells)}
@@ -38,18 +36,20 @@ defmodule Tetris.Game do
   end
 
   # TODO: Handle failure state
-  @spec move_piece_down(game) :: game
-  def move_piece_down(game) do
-    # create new state
+  @spec move_piece(game, atom) :: game
+  def move_piece(game, direction) do
+    ## create new state
     {:ok, g1} = remove_piece_from_board(game)
-    p1 = Piece.down(game.active_piece)
+    # dynamically call the correct piece movement function
+    p1 = apply(Piece, direction, [game.active_piece])
     g2 = Map.merge(game, %{
       board: g1.board,
       active_piece: p1
     })
 
-    # validate state
-    # insert new state if valid
+    ## validate state
+
+    ## insert new state if valid
     {:ok, g3} = set_piece_on_board(g2)
     g3
   end
