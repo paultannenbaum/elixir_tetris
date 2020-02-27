@@ -56,7 +56,7 @@ defmodule Tetris.Game.Piece do
   end
 
   def rotate_counter_clockwise(piece) do
-    piece |> transpose_piece |> reflect_piece
+    piece |> mirror_piece |> transpose_piece
   end
 
   @spec mirror_piece(piece) :: piece
