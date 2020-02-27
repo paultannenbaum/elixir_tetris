@@ -60,8 +60,9 @@ defmodule Tetris.Game do
   defp set_piece_on_board(game) do
     %{board: b, active_piece: p} = game
 
+    coords = Enum.map(p.coords, fn %{x: x, y: y} -> %{x: x, y: y} end)
     c1 = Enum.map(b.cells, fn c ->
-      if (Enum.member?(p.coords, Map.take(c, [:x, :y]))) do
+      if (Enum.member?(coords, Map.take(c, [:x, :y]))) do
         %{c | color: p.color}
       else
         c
@@ -78,8 +79,9 @@ defmodule Tetris.Game do
   defp remove_piece_from_board(game) do
     %{board: b, active_piece: p} = game
 
+    coords = Enum.map(p.coords, fn %{x: x, y: y} -> %{x: x, y: y} end)
     c1 = Enum.map(b.cells, fn c ->
-      if (Enum.member?(p.coords, Map.take(c, [:x, :y]))) do
+      if (Enum.member?(coords, Map.take(c, [:x, :y]))) do
         %{c | color: :white}
       else
         c

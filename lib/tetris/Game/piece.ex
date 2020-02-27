@@ -1,4 +1,5 @@
 defmodule Tetris.Game.Piece do
+  @enforce_keys [:coords, :color, :type]
   defstruct type: :i,
             color: :blue,
             coords: []
@@ -15,6 +16,9 @@ defmodule Tetris.Game.Piece do
     %{type: :z, color: :green},
     %{type: :l, color: :red}]
 
+  # TODO: Add description
+  @p_length 3
+
   @spec create_new(integer, integer) :: piece
   def create_new(x_max, y_max), do: create_new(x_max, y_max, Enum.random(@piece_types))
 
@@ -27,25 +31,29 @@ defmodule Tetris.Game.Piece do
     }
   end
 
-
-
   @spec down(piece) :: piece
   def down(piece) do
-    %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.x, y: c.y - 1} end)}
+    %{piece | coords: Enum.map(piece.coords, fn c ->
+      %{c | y: c.y - 1 }
+    end)}
   end
 
   @spec left(piece) :: [piece]
   def left(piece) do
-    %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.x - 1, y: c.y} end)}
+    %{piece | coords: Enum.map(piece.coords, fn c ->
+      %{c | x: c.x - 1 }
+    end)}
   end
 
   def right(piece) do
-    %{piece | coords: Enum.map(piece.coords, fn c -> %{x: c.x + 1, y: c.y} end)}
+    %{piece | coords: Enum.map(piece.coords, fn c ->
+      %{c | x: c.x + 1 }
+    end)}
   end
 
-#  def rotate_clockwise(piece) do
-#
-#  end
+  def rotate_clockwise(piece) do
+    piece |> mirror_piece_x_axis
+  end
 
 
 #  def rotate_counter_clockwise(piece) do
@@ -53,7 +61,11 @@ defmodule Tetris.Game.Piece do
 #  end
 
   defp mirror_piece_x_axis(piece) do
-    %{piece | coords: Enum.map(piece.coords, fn c -> %{x: 3 - c.x, y: c.y} end)}
+    %{piece | coords: Enum.map(piece.coords, fn c ->
+      {px, py} = c.p
+      px1 = @p_length - px
+      %{x: c.x + px1, y: c.y, p: {px1, py}}
+    end)}
   end
 
   def mirror_piece_y_axis(piece) do
