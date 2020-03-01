@@ -12,61 +12,59 @@ defmodule TetrisWeb.GameLive do
 
   def mount(_params, _session, socket) do
     socket = assign(socket, game: Game.new_game())
-    if connected?(socket), do: Process.send(self(), :game_start, [])
     {:ok, socket}
   end
 
   def render(assigns) do
     ~L"""
-    <h1 phx-click="move_left">New Game</h1>
-    <div phx-click="rotate_clockwise" id="game-board" >
+    <h1>Tetris</h1>
+
+    <button
+      phx-click="start_game"
+      <%= if @game.status === :open, do: 'disabled'%>
+    >
+      Start Game
+    </button>
+
+    <div id="game-board" phx-window-keydown="key_event">
       <%= GameView.board_as_html(@game.board) %>
     </div>
     """
   end
 
-  def handle_info(:game_start, socket) do
-    game = socket.assigns.game
-    Process.send(self(), :game_loop, [])
-    {:noreply, assign(socket, game: Game.start_game(game))}
-  end
-
   def handle_info(:game_loop, socket) do
     game = socket.assigns.game
-#    Process.send_after(self(), :game_loop, game.speed)
-    {:noreply, assign(socket, game: Game.move_piece(game, :down))}
+
+    Process.send_after(self(), :game_loop, game.speed)
+    move_piece(socket, :down)
   end
 
-  def handle_event("move_left", %{}, socket) do
+  def handle_event("start_game", _, socket) do
     game = socket.assigns.game
-    {:noreply, assign(socket, game: Game.move_piece(game, :left))}
+
+    Process.send(self(), :game_loop, [])
+    {:noreply, assign(socket, game: game |> Game.start_game)}
   end
 
-  def handle_event("rotate_clockwise", %{}, socket) do
+  def handle_event("key_event", %{"code" => "ArrowLeft"}, socket), do: move_piece(socket, :left)
+
+  def handle_event("key_event", %{"code" => "ArrowRight"}, socket), do: move_piece(socket, :right)
+
+  def handle_event("key_event", %{"code" => "ArrowDown"}, socket), do: move_piece(socket, :down)
+
+  def handle_event("key_event", %{"code" => "KeyA"}, socket), do: move_piece(socket, :rotate_counter_clockwise)
+
+  def handle_event("key_event", %{"code" => "KeyS"}, socket), do: move_piece(socket, :rotate_clockwise)
+
+  def handle_event("key_event", _, socket),  do: {:noreply, socket}
+
+  defp move_piece(socket, move) do
     game = socket.assigns.game
-    {:noreply, assign(socket, game: Game.move_piece(game, :rotate_clockwise))}
-  end
 
-#  def handle_event("game_start", %{}, socket) do
-#
-#    # {:noreply, assign(socket, msg: key)}
-#  end
-#
-#  def handle_event("game_end", %{}, socket) do
-#  end
-#
-#  def handle_event("piece_down", %{}, socket) do
-#  end
-#
-#  def handle_event("piece_left", %{}, socket) do
-#  end
-#
-#  def handle_event("piece_right", %{}, socket) do
-#  end
-#
-#  def handle_event("rotate_piece_clockwise", %{}, socket) do
-#  end
-#
-#  def handle_event("rotate_piece_counter_clockwise", %{}, socket) do
-#  end
+    if game.status === :closed do
+      {:noreply, socket}
+    else
+      {:noreply, assign(socket, game: game |> Game.move_piece(move))}
+    end
+  end
 end
