@@ -36,7 +36,11 @@ defmodule TetrisWeb.GameLive do
     game = socket.assigns.game
 
     Process.send_after(self(), :game_loop, game.speed)
-    move_piece(socket, :down)
+
+    cond do
+      Map.has_key?(socket.assigns, :game_loop_initialized) -> move_piece(socket, :down)
+      true -> {:noreply, assign(socket, game_loop_initialized: true)}
+    end
   end
 
   def handle_event("start_game", _, socket) do
