@@ -12,7 +12,7 @@ defmodule Tetris.Game.Piece do
 
   @piece_types [
     %{type: :i, color: :blue},
-    %{type: :t, color: :yellow},
+    %{type: :t, color: :purple},
     %{type: :z, color: :green},
     %{type: :l, color: :red}]
 

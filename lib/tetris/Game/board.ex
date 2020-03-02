@@ -10,9 +10,19 @@ defmodule Tetris.Game.Board do
     }
   end
 
+#  def cells_to_map(cells) do
+#    cells
+#    |> Enum.with_index
+#    |> Enum.map(fn {c, i} -> Map.put(%{}, i, c) end)
+#  end
+#
+#  def cells_from_map(cells) do
+#    cells |> Enum.map(fn %{_: cell} -> cell end)
+#  end
+
   @spec generate_board_cells(integer, integer) :: [map]
   defp generate_board_cells(x_max, y_max) do
-    cells = for x <- 0..x_max,
+    for x <- 0..x_max,
         y <- 0..y_max,
         do: %{x: x, y: y, color: :white}
   end

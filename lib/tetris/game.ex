@@ -27,10 +27,7 @@ defmodule Tetris.Game do
 
   @spec start_game(game) :: game
   def start_game(game) do
-    g1 = Map.merge(game, %{
-      active_piece: Piece.create_new(@x_cells, @y_cells),
-      status: :open
-    })
+    g1 = add_new_piece_to_board(game) |> Map.merge(%{status: :open})
     {:ok, g2} = set_piece_on_board(g1)
     g2
   end
@@ -38,37 +35,59 @@ defmodule Tetris.Game do
   # TODO: Handle failure state
   @spec move_piece(game, atom) :: game
   def move_piece(game, direction) do
-    ## create new state
-    {:ok, g1} = remove_piece_from_board(game)
-    # dynamically call the correct piece movement function
+    # New piece state
     p1 = apply(Piece, direction, [game.active_piece])
-    g2 = Map.merge(game, %{
-      board: g1.board,
-      active_piece: p1
-    })
 
-    ## validate state
-
-    ## insert new state if valid
-    {:ok, g3} = set_piece_on_board(g2)
-    g3
+    # Validate new state
+    case validate_piece_placement(game, p1) do
+      {:ok, g1} ->
+        {:ok, g2} = set_piece_on_board(g1)
+        g2
+      {:error, g1, _} ->
+        # TODO: If we want to log the error, or drop a new piece, we can do that here
+        g1
+    end
   end
 
   # Private
+  defp add_new_piece_to_board(game) do
+    %{game | active_piece: Piece.create_new(@x_cells, @y_cells)}
+  end
+
+  defp validate_piece_placement(game, piece) do
+    # Game state with piece removed
+    {:ok, g1} = remove_piece_from_board(game)
+
+    # Existing coordinates the piece would move onto
+    c1 = board_cells_from_piece_coords(g1.board, piece)
+
+    # New potential game state
+    g2 = Map.merge(game, %{
+      board: g1.board,
+      active_piece: piece
+    })
+
+    # check for boundaries and other pieces
+    cond do
+      Enum.any?(piece.coords, fn c -> c.x < 0 or c.x > @x_cells end) ->
+        {:error, game, "Move out of bounds"}
+      Enum.any?(piece.coords, fn c -> c.y < 0 end) ->
+        g3 = add_new_piece_to_board(game)
+        {:error, g3, "Piece is at bottom"}
+      Enum.any?(c1, fn c -> c.color !== :white end) ->
+        {:error, game, "Another piece is occupying that state"}
+      true ->
+        {:ok, g2}
+    end
+  end
+
   # TODO: Handle failure state
   @spec set_piece_on_board(game) :: atom
   defp set_piece_on_board(game) do
     %{board: b, active_piece: p} = game
 
-    coords = Enum.map(p.coords, fn %{x: x, y: y} -> %{x: x, y: y} end)
-    c1 = Enum.map(b.cells, fn c ->
-      if (Enum.member?(coords, Map.take(c, [:x, :y]))) do
-        %{c | color: p.color}
-      else
-        c
-      end
-    end)
-    b1 = %{b | cells: c1}
+    update_cells = board_cells_from_piece_coords(b, p) |> Enum.map(fn c -> %{c | color: p.color} end)
+    b1 = update_board_cells(b, update_cells)
     g1 = %{game | board: b1}
 
     {:ok, g1}
@@ -79,17 +98,26 @@ defmodule Tetris.Game do
   defp remove_piece_from_board(game) do
     %{board: b, active_piece: p} = game
 
-    coords = Enum.map(p.coords, fn %{x: x, y: y} -> %{x: x, y: y} end)
-    c1 = Enum.map(b.cells, fn c ->
-      if (Enum.member?(coords, Map.take(c, [:x, :y]))) do
-        %{c | color: :white}
-      else
-        c
-      end
-    end)
-    b1 = %{b | cells: c1}
+    update_cells = board_cells_from_piece_coords(b, p) |> Enum.map(fn c -> %{c | color: :white} end)
+    b1 = update_board_cells(b, update_cells)
     g1 = %{game | board: b1}
 
     {:ok, g1}
+  end
+
+  # Returns the cells in a board that a piece would occupy
+  @spec board_cells_from_piece_coords(board, piece) :: [map]
+  defp board_cells_from_piece_coords(board, piece) do
+    pxy = Enum.map(piece.coords, fn %{x: x, y: y} -> %{x: x, y: y} end)
+    Enum.filter(board.cells, fn c -> Enum.member?(pxy, Map.take(c, [:x, :y]))end)
+  end
+
+  # Updates the matching cells in a board with the provided updates cells
+  @spec update_board_cells(board, [map]) :: board
+  defp update_board_cells(board, update_cells) do
+    %{board | cells: Enum.map(board.cells, fn c ->
+      update_cell = Enum.find(update_cells, fn(uc) -> uc.x === c.x && uc.y === c.y end)
+      if (update_cell), do: update_cell, else: c
+    end)}
   end
 end
