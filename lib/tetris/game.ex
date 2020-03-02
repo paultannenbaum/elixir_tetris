@@ -39,13 +39,15 @@ defmodule Tetris.Game do
     p1 = apply(Piece, direction, [game.active_piece])
 
     # Validate new state
-    case validate_piece_placement(game, p1) do
+    case validate_piece_placement(game, p1, direction) do
       {:ok, g1} ->
         {:ok, g2} = set_piece_on_board(g1)
         g2
-      {:error, g1, _} ->
-        # TODO: If we want to log the error, or drop a new piece, we can do that here
-        g1
+      {:error, g1, "Game Over"} ->
+        game_over(g1)
+      {:error, g1, "Invalid y movement"} ->
+        add_new_piece_to_board(g1)
+      {:error, g1, _} -> g1
     end
   end
 
@@ -54,29 +56,34 @@ defmodule Tetris.Game do
     %{game | active_piece: Piece.create_new(@x_cells, @y_cells)}
   end
 
-  defp validate_piece_placement(game, piece) do
-    # Game state with piece removed
+  defp validate_piece_placement(game, piece, direction) do
+    # Game state with old active_piece removed
     {:ok, g1} = remove_piece_from_board(game)
 
-    # Existing coordinates the piece would move onto
-    c1 = board_cells_from_piece_coords(g1.board, piece)
+    # Existing cells the piece would move onto
+    existing_cells = board_cells_from_piece_coords(g1.board, piece)
 
-    # New potential game state
-    g2 = Map.merge(game, %{
-      board: g1.board,
-      active_piece: piece
-    })
+    out_of_x_bounds? = Enum.any?(piece.coords, fn c -> c.x < 0 or c.x > @x_cells end)
+    out_of_y_floor? = Enum.any?(piece.coords, fn c -> c.y < 0 end)
+    out_of_y_ciel? = Enum.any?(piece.coords, fn c -> c.y > @y_cells end)
+    already_occupied_by_another_piece? = Enum.any?(existing_cells, fn c -> c.color !== :white end)
+    x_move? = (direction === :left or direction === :right)
+    y_move? = direction === :down
 
-    # check for boundaries and other pieces
+    # Test various failure scenarios, otherwise return updated board
     cond do
-      Enum.any?(piece.coords, fn c -> c.x < 0 or c.x > @x_cells end) ->
-        {:error, game, "Move out of bounds"}
-      Enum.any?(piece.coords, fn c -> c.y < 0 end) ->
-        g3 = add_new_piece_to_board(game)
-        {:error, g3, "Piece is at bottom"}
-      Enum.any?(c1, fn c -> c.color !== :white end) ->
-        {:error, game, "Another piece is occupying that state"}
+      out_of_y_ciel? -> {:error, game, "Game over"}
+      out_of_x_bounds? -> {:error, game, "Invalid x movement"}
+      out_of_y_floor? -> {:error, game, "Invalid y movement"}
+      already_occupied_by_another_piece? and x_move? ->
+        {:error, game, "Invalid x movement"}
+      already_occupied_by_another_piece? and y_move? ->
+        {:error, game, "Invalid y movement"}
       true ->
+        g2 = Map.merge(game, %{
+          board: g1.board,
+          active_piece: piece
+        })
         {:ok, g2}
     end
   end
@@ -119,5 +126,9 @@ defmodule Tetris.Game do
       update_cell = Enum.find(update_cells, fn(uc) -> uc.x === c.x && uc.y === c.y end)
       if (update_cell), do: update_cell, else: c
     end)}
+  end
+
+  defp game_over(game) do
+    %{game | status: :closed}
   end
 end
