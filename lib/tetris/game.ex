@@ -27,38 +27,36 @@ defmodule Tetris.Game do
 
   @spec start_game(game) :: game
   def start_game(game) do
-    g1 = add_new_piece_to_board(game) |> Map.merge(%{status: :open})
-    {:ok, g2} = set_piece_on_board(g1)
-    g2
+    game
+    |> Map.merge(%{status: :open})
+    |> add_new_piece_to_board
+    |> set_piece_on_board
   end
 
-  # TODO: Handle failure state
   @spec move_piece(game, atom) :: game
   def move_piece(game, direction) do
     # New piece state
-    p1 = apply(Piece, direction, [game.active_piece])
+    piece = apply(Piece, direction, [game.active_piece])
 
     # Validate new state
-    case validate_piece_placement(game, p1, direction) do
-      {:ok, g1} ->
-        {:ok, g2} = set_piece_on_board(g1)
-        g2
-      {:error, g1, "Game Over"} ->
-        game_over(g1)
-      {:error, g1, "Invalid y movement"} ->
-        add_new_piece_to_board(g1)
-      {:error, g1, _} -> g1
+    case validate_piece_placement(game, piece, direction) do
+      {:ok, game} -> set_piece_on_board(game)
+      {:error, game, "Game Over"} -> game_over(game)
+      {:error, game, "Invalid y movement"} -> add_new_piece_to_board(game)
+      {:error, game, _} -> game
     end
   end
 
   # Private
+  @spec add_new_piece_to_board(game) :: game
   defp add_new_piece_to_board(game) do
     %{game | active_piece: Piece.create_new(@x_cells, @y_cells)}
   end
 
+  @spec validate_piece_placement(game, piece, atom) :: atom
   defp validate_piece_placement(game, piece, direction) do
     # Game state with old active_piece removed
-    {:ok, g1} = remove_piece_from_board(game)
+    g1 = remove_piece_from_board(game)
 
     # Existing cells the piece would move onto
     existing_cells = board_cells_from_piece_coords(g1.board, piece)
@@ -80,36 +78,29 @@ defmodule Tetris.Game do
       already_occupied_by_another_piece? and y_move? ->
         {:error, game, "Invalid y movement"}
       true ->
-        g2 = Map.merge(game, %{
+        {:ok, Map.merge(game, %{
           board: g1.board,
           active_piece: piece
-        })
-        {:ok, g2}
+        })}
     end
   end
 
-  # TODO: Handle failure state
-  @spec set_piece_on_board(game) :: atom
+  @spec set_piece_on_board(game) :: game
   defp set_piece_on_board(game) do
     %{board: b, active_piece: p} = game
 
     update_cells = board_cells_from_piece_coords(b, p) |> Enum.map(fn c -> %{c | color: p.color} end)
-    b1 = update_board_cells(b, update_cells)
-    g1 = %{game | board: b1}
-
-    {:ok, g1}
+    updated_board = update_board_cells(b, update_cells)
+    %{game | board: updated_board}
   end
 
-  # TODO: Handle failure state
-  @spec remove_piece_from_board(game) :: atom
+  @spec remove_piece_from_board(game) :: game
   defp remove_piece_from_board(game) do
     %{board: b, active_piece: p} = game
 
     update_cells = board_cells_from_piece_coords(b, p) |> Enum.map(fn c -> %{c | color: :white} end)
-    b1 = update_board_cells(b, update_cells)
-    g1 = %{game | board: b1}
-
-    {:ok, g1}
+    updated_board = update_board_cells(b, update_cells)
+    %{game | board: updated_board}
   end
 
   # Returns the cells in a board that a piece would occupy
@@ -128,6 +119,7 @@ defmodule Tetris.Game do
     end)}
   end
 
+  @spec game_over(game) :: game
   defp game_over(game) do
     %{game | status: :closed}
   end
