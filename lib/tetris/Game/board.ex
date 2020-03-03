@@ -11,7 +11,7 @@ defmodule Tetris.Game.Board do
   end
 
   def cells_to_row_map(cells) do
-    board.cells
+    cells
     |> Enum.reduce(%{}, fn c, acc ->
       {_, updated} = Map.get_and_update(acc, c.y, fn row ->
         updated_row = if row, do: [c | row], else: [c]

@@ -38,6 +38,8 @@ defmodule Tetris.Game do
     # New piece state
     piece = apply(Piece, direction, [game.active_piece])
 
+    scan_rows_for_scoring_move(game)
+
     # Validate new state
     case validate_piece_placement(game, piece, direction) do
       {:ok, game} -> set_piece_on_board(game)
@@ -131,8 +133,10 @@ defmodule Tetris.Game do
   end
 
   defp scan_rows_for_scoring_move(game) do
-    game.board.cells
-    |> Enum.reduce()
+    scoring_rows =
+      Board.cells_to_row_map(game.board.cells)
+      |> Enum.filter(fn {row_num, cells} -> Enum.all?(cells, fn c -> c.color !== :white end) end)
 
+    IO.inspect(scoring_rows)
   end
 end
