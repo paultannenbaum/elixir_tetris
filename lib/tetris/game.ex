@@ -41,7 +41,7 @@ defmodule Tetris.Game do
     # Validate new state
     case validate_piece_placement(game, piece, direction) do
       {:ok, game} -> set_piece_on_board(game)
-      {:error, game, "Game Over"} -> game_over(game)
+      {:error, game, "Game over"} -> game_over(game)
       {:error, game, "Invalid y movement"} -> add_new_piece_to_board(game)
       {:error, game, _} -> game
     end
@@ -68,14 +68,14 @@ defmodule Tetris.Game do
 
     out_of_x_bounds? = Enum.any?(piece.coords, fn c -> c.x < 0 or c.x > @x_cells end)
     out_of_y_floor? = Enum.any?(piece.coords, fn c -> c.y < 0 end)
-    out_of_y_ciel? = Enum.any?(piece.coords, fn c -> c.y > @y_cells end)
+    at_y_ciel? = Enum.any?(piece.coords, fn c -> c.y >= @y_cells end)
     already_occupied_by_another_piece? = Enum.any?(existing_cells, fn c -> c.color !== :white end)
     x_move? = (direction === :left or direction === :right)
     y_move? = direction === :down
 
     # Test various failure scenarios, otherwise return updated board
     cond do
-      out_of_y_ciel? -> {:error, game, "Game over"}
+      already_occupied_by_another_piece? and at_y_ciel?  -> {:error, game, "Game over"}
       out_of_x_bounds? -> {:error, game, "Invalid x movement"}
       out_of_y_floor? -> {:error, game, "Invalid y movement"}
       already_occupied_by_another_piece? and x_move? ->
@@ -126,6 +126,7 @@ defmodule Tetris.Game do
 
   @spec game_over(game) :: game
   defp game_over(game) do
+    IO.puts("GAME OVER")
     %{game | status: :closed}
   end
 end
