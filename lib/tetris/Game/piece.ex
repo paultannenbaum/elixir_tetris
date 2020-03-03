@@ -14,7 +14,8 @@ defmodule Tetris.Game.Piece do
     %{type: :i, color: :blue},
     %{type: :t, color: :purple},
     %{type: :z, color: :green},
-    %{type: :l, color: :red}]
+    %{type: :l, color: :red},
+    %{type: :o, color: :orange}]
 
   # TODO: Add description
   @p_length 3
@@ -101,6 +102,7 @@ defmodule Tetris.Game.Piece do
       :t -> [{2,0},{1,1},{2,1},{3,1}]
       :z -> [{1,0},{2,0},{2,1},{3,1}]
       :l -> [{2,0},{2,1},{2,2},{3,2}]
+      :o -> [{1,0},{2,0},{1,1},{2,1}]
     end
 
     shape_points
