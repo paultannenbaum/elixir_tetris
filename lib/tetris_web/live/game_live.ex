@@ -47,6 +47,7 @@ defmodule TetrisWeb.GameLive do
     game = socket.assigns.game
 
     Process.send(self(), :game_loop, [])
+
     {:noreply, assign(socket, game: game |> Game.start_game)}
   end
 

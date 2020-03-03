@@ -29,7 +29,7 @@ defmodule Tetris.Game do
   def start_game(game) do
     game
     |> Map.merge(%{status: :open})
-    |> add_new_piece_to_board
+    |> add_initial_piece_to_board
     |> set_piece_on_board
   end
 
@@ -48,9 +48,14 @@ defmodule Tetris.Game do
   end
 
   # Private
+  @spec add_initial_piece_to_board(game) :: game
+  defp add_initial_piece_to_board(game) do
+    %{game | active_piece: Piece.create_new(@x_cells, @y_cells)}
+  end
+
   @spec add_new_piece_to_board(game) :: game
   defp add_new_piece_to_board(game) do
-    %{game | active_piece: Piece.create_new(@x_cells, @y_cells)}
+    %{game | active_piece: Piece.create_new(@x_cells, @y_cells+1)}
   end
 
   @spec validate_piece_placement(game, piece, atom) :: atom
