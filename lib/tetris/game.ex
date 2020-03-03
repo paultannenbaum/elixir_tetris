@@ -129,4 +129,13 @@ defmodule Tetris.Game do
     IO.puts("GAME OVER")
     %{game | status: :closed}
   end
+
+  defp scan_rows_for_scoring_move(game) do
+#    cells = game.board.cells
+#
+#    for n <- 0..@y_cells, do
+#
+#    end
+
+  end
 end

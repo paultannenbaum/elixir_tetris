@@ -10,15 +10,17 @@ defmodule Tetris.Game.Board do
     }
   end
 
-#  def cells_to_map(cells) do
-#    cells
-#    |> Enum.with_index
-#    |> Enum.map(fn {c, i} -> Map.put(%{}, i, c) end)
-#  end
-#
-#  def cells_from_map(cells) do
-#    cells |> Enum.map(fn %{_: cell} -> cell end)
-#  end
+  def board_cells_as_rows(board) do
+    board.cells
+    |> Enum.reduce(%{}, fn c, acc ->
+      {_, updated} = Map.get_and_update(acc, c.y, fn row ->
+        updated_row = if row, do: [c | row], else: [c]
+        {row, updated_row}
+      end)
+
+      updated
+    end)
+  end
 
   @spec generate_board_cells(integer, integer) :: [map]
   defp generate_board_cells(x_max, y_max) do
