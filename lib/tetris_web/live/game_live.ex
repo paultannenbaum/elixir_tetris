@@ -23,7 +23,7 @@ defmodule TetrisWeb.GameLive do
       phx-click="start_game"
       <%= if @game.status === :open, do: 'disabled'%>
     >
-      Start Game
+      Start New Game
     </button>
 
     <div id="game-board" phx-window-keydown="key_event">
@@ -35,7 +35,7 @@ defmodule TetrisWeb.GameLive do
   def handle_info(:game_loop, socket) do
     game = socket.assigns.game
 
-    Process.send_after(self(), :game_loop, game.speed)
+    if (game.status === :open), do: Process.send_after(self(), :game_loop, game.speed)
 
     cond do
       Map.has_key?(socket.assigns, :game_loop_initialized) -> move_piece(socket, :down)
@@ -44,11 +44,9 @@ defmodule TetrisWeb.GameLive do
   end
 
   def handle_event("start_game", _, socket) do
-    game = socket.assigns.game
-
     Process.send(self(), :game_loop, [])
 
-    {:noreply, assign(socket, game: game |> Game.start_game)}
+    {:noreply, assign(socket, game: Game.new_game() |> Game.start_game)}
   end
 
   def handle_event("key_event", %{"code" => "ArrowLeft"}, socket), do: move_piece(socket, :left)
