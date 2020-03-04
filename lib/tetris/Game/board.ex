@@ -37,4 +37,6 @@ defmodule Tetris.Game.Board do
         y <- 0..y_max,
         do: %{x: x, y: y, color: :white}
   end
+
+#  Enum.sort_by(ac, &Map.fetch(&1, :y)) |> Enum.chunk_every(4)
 end
