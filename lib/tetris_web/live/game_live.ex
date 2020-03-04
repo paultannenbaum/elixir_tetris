@@ -27,6 +27,12 @@ defmodule TetrisWeb.GameLive do
         Start New Game
       </button>
 
+      <div class="game-info">
+        <%= if @game.score do %>
+          Score: <%= @game.score %>
+        <% end %>
+      </div>
+
       <div id="game-board"
         style="width: <%= GameView.board_width(@game) %>"
         phx-window-keydown="key_event"

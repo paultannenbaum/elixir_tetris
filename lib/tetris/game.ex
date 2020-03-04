@@ -6,7 +6,7 @@ defmodule Tetris.Game do
 
   defstruct board: nil,
             active_piece: nil,
-            score: 0,
+            score: nil,
             status: :closed,
             speed: 400
 
@@ -28,7 +28,7 @@ defmodule Tetris.Game do
   @spec start_game(game) :: game
   def start_game(game) do
     game
-    |> Map.merge(%{status: :open})
+    |> Map.merge(%{status: :open, score: 0})
     |> add_initial_piece_to_board
     |> set_piece_on_board
   end
@@ -141,7 +141,5 @@ defmodule Tetris.Game do
     scoring_rows =
       Board.cells_to_row_map(game.board.cells)
       |> Enum.filter(fn {row_num, cells} -> Enum.all?(cells, fn c -> c.color !== :white end) end)
-
-    IO.inspect(scoring_rows)
   end
 end

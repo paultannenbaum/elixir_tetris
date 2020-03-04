@@ -20,6 +20,11 @@ h1 {
     outline: 2px solid #000;
 }
 
+.game-info {
+    height: 25px;
+    display: block;
+}
+
 .cell {
     width: 20px;
     height: 20px;
