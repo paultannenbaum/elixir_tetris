@@ -7,9 +7,13 @@ h1 {
     text-align: center;
 }
 
-#game-board {
+#app-container {
     margin: 0 auto;
-    width: 520px;
+    text-align: center;
+}
+
+#game-board {
+    margin: 20px auto;
     background: black;
     display: flex;
     flex-wrap: wrap;

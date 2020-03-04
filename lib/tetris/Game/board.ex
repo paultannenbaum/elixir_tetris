@@ -1,12 +1,14 @@
 defmodule Tetris.Game.Board do
-  defstruct cells: []
+  defstruct cells: [], x_cell_count: 0, y_cell_count: 0
 
   @type board :: %__MODULE__{ cells: [map] }
 
   @spec create_new(integer, integer) :: board
   def create_new(x, y) do
     %__MODULE__{
-      cells: generate_board_cells(x, y)
+      cells: generate_board_cells(x, y),
+      x_cell_count: x,
+      y_cell_count: y
     }
   end
 

@@ -17,17 +17,22 @@ defmodule TetrisWeb.GameLive do
 
   def render(assigns) do
     ~L"""
-    <h1>Tetris</h1>
+    <div id="app-container">
+      <h1>Tetris</h1>
 
-    <button
-      phx-click="start_game"
-      <%= if @game.status === :open, do: 'disabled'%>
-    >
-      Start New Game
-    </button>
+      <button
+        phx-click="start_game"
+        <%= if @game.status === :open, do: 'disabled'%>
+      >
+        Start New Game
+      </button>
 
-    <div id="game-board" phx-window-keydown="key_event">
-      <%= GameView.board_as_html(@game.board) %>
+      <div id="game-board"
+        style="width: <%= GameView.board_width(@game) %>"
+        phx-window-keydown="key_event"
+      >
+        <%= GameView.board_as_html(@game) %>
+      </div>
     </div>
     """
   end
@@ -45,7 +50,6 @@ defmodule TetrisWeb.GameLive do
 
   def handle_event("start_game", _, socket) do
     Process.send(self(), :game_loop, [])
-
     {:noreply, assign(socket, game: Game.new_game() |> Game.start_game)}
   end
 
