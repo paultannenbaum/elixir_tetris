@@ -64,6 +64,7 @@ defmodule Tetris.Game do
     %{game | active_piece: new_piece()}
   end
 
+  # UPDATE
   @spec validate_piece_placement(game, piece, atom) :: atom
   defp validate_piece_placement(game, piece, direction) do
     # Game state with old active_piece removed
@@ -96,6 +97,7 @@ defmodule Tetris.Game do
     end
   end
 
+  # UPDATE
   @spec set_piece_on_board(game) :: game
   defp set_piece_on_board(game) do
     %{board: b, active_piece: p} = game
@@ -105,6 +107,7 @@ defmodule Tetris.Game do
     %{game | board: updated_board}
   end
 
+  # UPDATE
   @spec remove_piece_from_board(game) :: game
   defp remove_piece_from_board(game) do
     %{board: b, active_piece: p} = game
@@ -114,6 +117,7 @@ defmodule Tetris.Game do
     %{game | board: updated_board}
   end
 
+  # UPDATE
   # Returns the cells in a board that a piece would occupy
   @spec board_cells_from_piece_coords(board, piece) :: [map]
   defp board_cells_from_piece_coords(board, piece) do
@@ -121,6 +125,7 @@ defmodule Tetris.Game do
     Enum.filter(board.cells, fn c -> Enum.member?(pxy, Map.take(c, [:x, :y]))end)
   end
 
+  # UPDATE
   # Updates the matching cells in a board with the provided updates cells
   @spec update_board_cells(board, [map]) :: board
   defp update_board_cells(board, update_cells) do
@@ -140,6 +145,7 @@ defmodule Tetris.Game do
     %{game | score: game.score + 100}
   end
 
+  # UPDATE
   defp remove_scoring_row(game, row_key) do
     updated_cells =
       game.board.cells

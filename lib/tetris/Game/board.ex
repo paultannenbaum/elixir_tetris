@@ -2,49 +2,66 @@ defmodule Tetris.Game.Board do
   defstruct rows: [], x_cell_count: 0, y_cell_count: 0, cell_color: :white
 
   @type board :: %__MODULE__{ rows: [tuple], x_cell_count: integer, y_cell_count: integer }
+  @type row   :: {integer, [cell]}
+  @type cell  :: %{x: integer, y: integer, color: atom}
 
   @spec create_new(integer, integer) :: board
   def create_new(x, y) do
     %__MODULE__{
       x_cell_count: x,
       y_cell_count: y
-    } |> generate_rows
+    } |> create_rows
   end
 
-  def cells_by_row(cells) do
-    cells
-    |> Enum.reduce(%{}, fn c, acc ->
-      {_, updated} = Map.get_and_update(acc, c.y, fn row ->
-        updated_row = if row, do: [c | row], else: [c]
-        {row, updated_row}
-      end)
+  @spec update_cell(board, map) :: board
+  def update_cell(board, cell) do
+    %{board | rows: Enum.map(board.rows, fn row = {y_index, cells} ->
+      if y_index === cell.y do
+        {y_index, Enum.map(cells, fn c -> if is_cell?(c, cell), do: cell, else: c end)}
+      else
+        row
+      end
+    end)}
+  end
 
-      updated
+  @spec update_cells(board, [any]) :: board
+  def update_cells(board, []), do: board
+  def update_cells(board, [cell | rest]), do: update_cells(update_cell(board, cell), rest)
+
+  @spec remove_scoring_row_and_adjust(board, integer) :: board
+  def remove_scoring_row_and_adjust(board, row_index) do
+    updated_rows = board.rows
+    |> Enum.reduce([], fn(row = {i, cells}, acc) ->
+      cond do
+        i === row_index -> acc
+        i < row_index -> acc ++ [row]
+        i > row_index -> acc ++ [{i-1, Enum.map(cells, fn c -> %{c | y: c.y - 1} end)}]
+      end
     end)
-    |> Enum.into([])
+
+    %{board | rows: updated_rows} |> new_top_row
   end
 
-  def cells_by_row_unfolded(row_cells) do
-    row_cells
-    |> Enum.into(%{})
-    |> Enum.reduce([], fn {row, cells}, acc -> acc ++ cells end)
+  # Private
+  @spec create_row(integer, integer, atom) :: row
+  defp create_row(x, y, color) do
+    {y, Enum.map(0..x, fn x -> %{x: x, y: y, color: color} end)}
   end
 
-  @spec generate_board_cells(integer, integer) :: [map]
-  defp generate_board_cells(x_max, y_max) do
-    for x <- 0..x_max,
-        y <- 0..y_max,
-        do: %{x: x, y: y, color: :white}
-  end
-
-  @spec generate_rows(board) :: board
-  defp generate_rows(board) do
-    rows = for y <- 0..board.y_cell_count do
-      cells = for x <- 0..board.x_cell_count, do: %{x: x, y: y, color: board.cell_color}
-      {y, cells}
-    end
+  @spec create_rows(board) :: board
+  defp create_rows(board) do
+    rows = for y <- 0..board.y_cell_count, do: create_row(board.x_cell_count, y, board.cell_color)
     %{board | rows: rows}
   end
 
-#  Enum.sort_by(ac, &Map.fetch(&1, :y)) |> Enum.chunk_every(4)
+  @spec is_cell?(cell, cell) :: boolean
+  defp is_cell?(c1, c2) do
+    c1.x === c2.x && c1.y === c2.y
+  end
+
+  @spec new_top_row(board) :: board
+  defp new_top_row(board) do
+    new_top_row = create_row(board.x_cell_count, board.y_cell_count, board.cell_color)
+    %{board | rows: board.rows ++ [new_top_row]}
+  end
 end
