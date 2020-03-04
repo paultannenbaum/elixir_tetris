@@ -42,9 +42,9 @@ defmodule Tetris.Game do
 
     # Validate new state
     case validate_piece_placement(game, piece, direction) do
-      {:ok, game} -> set_piece_on_board(game)
-      {:error, game, "Game over"} -> game_over(game)
-      {:error, game, "Invalid y movement"} -> add_new_piece_to_board(game)
+      {:ok, game} -> game |> set_piece_on_board |> scan_rows_for_scoring_move
+      {:error, game, "Game over"} -> game |> game_over
+      {:error, game, "Invalid y movement"} -> game |> add_new_piece_to_board
       {:error, game, _} -> game
     end
   end
@@ -138,8 +138,10 @@ defmodule Tetris.Game do
   end
 
   defp scan_rows_for_scoring_move(game) do
-    scoring_rows =
-      Board.cells_to_row_map(game.board.cells)
-      |> Enum.filter(fn {row_num, cells} -> Enum.all?(cells, fn c -> c.color !== :white end) end)
+#    scoring_rows =
+#      Board.cells_to_row_map(game.board.cells)
+#      |> Enum.filter(fn {row_num, cells} -> Enum.all?(cells, fn c -> c.color !== :white end) end)
+
+    game
   end
 end
