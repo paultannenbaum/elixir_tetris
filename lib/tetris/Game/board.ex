@@ -12,7 +12,7 @@ defmodule Tetris.Game.Board do
     }
   end
 
-  def cells_to_row_map(cells) do
+  def cells_by_row(cells) do
     cells
     |> Enum.reduce(%{}, fn c, acc ->
       {_, updated} = Map.get_and_update(acc, c.y, fn row ->
@@ -22,10 +22,12 @@ defmodule Tetris.Game.Board do
 
       updated
     end)
+    |> Enum.into([])
   end
 
-  def row_map_to_cells(row_map) do
-    row_map
+  def cells_by_row_unfolded(row_cells) do
+    row_cells
+    |> Enum.into(%{})
     |> Enum.reduce([], fn {row, cells}, acc -> acc ++ cells end)
   end
 
