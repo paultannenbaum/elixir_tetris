@@ -42,7 +42,8 @@ defmodule Tetris.Game do
     case validate_piece_placement(game, piece, direction) do
       {:ok, game} -> game |> set_piece_on_board
       {:error, game, "Game over"} -> game |> game_over
-      {:error, game, "Invalid y movement"} -> game |> scan_rows_for_scoring_move |> add_new_piece_to_board
+#      {:error, game, "Invalid y movement"} -> game |> scan_rows_for_scoring_move |> add_new_piece_to_board
+      {:error, game, "Invalid y movement"} -> game |> add_new_piece_to_board
       {:error, game, _} -> game
     end
   end
