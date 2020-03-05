@@ -10,10 +10,9 @@ defmodule TetrisWeb.GameLive do
   alias Tetris.Game
   alias TetrisWeb.GameView
 
-  def mount(_params, _session, socket) do
-    socket = assign(socket, game: Game.new_game())
-    {:ok, socket}
-  end
+  @type socket  :: %Elixir.Phoenix.LiveView.Socket{}
+  @type session :: map
+  @type params  :: map
 
   def render(assigns) do
     ~L"""
@@ -43,6 +42,13 @@ defmodule TetrisWeb.GameLive do
     """
   end
 
+  @spec mount(params, session, socket) :: {:ok, socket}
+  def mount(_params, _session, socket) do
+    socket = assign(socket, game: Game.new_game())
+    {:ok, socket}
+  end
+
+  @spec handle_info(atom, socket) :: {:noreply, socket}
   def handle_info(:game_loop, socket) do
     game = socket.assigns.game
 
@@ -54,6 +60,7 @@ defmodule TetrisWeb.GameLive do
     end
   end
 
+  @spec handle_event(String.t(), params, socket) :: {:noreply, socket}
   def handle_event("start_game", _, socket) do
     Process.send(self(), :game_loop, [])
     {:noreply, assign(socket, game: Game.new_game() |> Game.start_game)}
@@ -71,6 +78,7 @@ defmodule TetrisWeb.GameLive do
 
   def handle_event("key_event", _, socket),  do: {:noreply, socket}
 
+  @spec move_piece(socket, atom) :: {:noreply, socket}
   defp move_piece(socket, move) do
     game = socket.assigns.game
 

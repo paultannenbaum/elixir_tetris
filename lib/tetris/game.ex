@@ -13,7 +13,13 @@ defmodule Tetris.Game do
   alias Tetris.Game.Board
   alias Tetris.Game.Piece
 
-  @type game  :: %__MODULE__{}
+  @type game  :: %__MODULE__{
+                   board: board | nil,
+                   active_piece: piece | nil,
+                   score: integer | nil,
+                   status: atom,
+                   speed: integer
+                 }
   @type board :: %Board{}
   @type piece :: %Piece{}
 
@@ -71,7 +77,7 @@ defmodule Tetris.Game do
     %{game | active_piece: new_piece()}
   end
 
-  @spec validate_piece_placement(game, piece, atom) :: atom
+  @spec validate_piece_placement(game, piece, atom) :: {:ok, game} | {:error, game, String.t()}
   defp validate_piece_placement(game, piece, direction) do
     # Game state with old active_piece removed
     g1 = remove_piece_from_board(game)
@@ -121,7 +127,6 @@ defmodule Tetris.Game do
     %{game | board: updated_board}
   end
 
-  # Returns the cells in a board that a piece would occupy
   @spec board_cells_from_piece_coords(board, piece) :: [map]
   defp board_cells_from_piece_coords(board, piece) do
     Enum.filter(Board.get_cells(board), fn c ->
@@ -135,10 +140,12 @@ defmodule Tetris.Game do
     %{game | status: :closed}
   end
 
+  @spec increment_game_score(game) :: game
   defp increment_game_score(game) do
     %{game | score: game.score + 100}
   end
 
+  @spec scan_rows_for_scoring_move(game) :: game
   defp scan_rows_for_scoring_move(game) do
     game |> scan_rows_for_scoring_move(game.board.rows)
   end

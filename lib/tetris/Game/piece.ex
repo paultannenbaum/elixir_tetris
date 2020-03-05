@@ -1,4 +1,8 @@
 defmodule Tetris.Game.Piece do
+  @moduledoc """
+  Provides all logic around creating and manipulating a tetris game piece (also known as a tetrominoe)
+  """
+
   @enforce_keys [:coords, :color, :type]
   defstruct type: :i,
             color: :blue,
@@ -7,8 +11,10 @@ defmodule Tetris.Game.Piece do
   @type piece :: %__MODULE__{
                type: atom,
                color: atom,
-               coords: [map]
+               coords: [coord]
              }
+  @type coord :: %{x: integer, y: integer, p: [point]}
+  @type point :: {integer, integer}
 
   @piece_types [
     %{type: :i, color: :blue},
@@ -17,7 +23,6 @@ defmodule Tetris.Game.Piece do
     %{type: :l, color: :red},
     %{type: :o, color: :orange}]
 
-  # TODO: Add description
   @p_length 3
 
   @spec create_new(integer, integer) :: piece
@@ -39,23 +44,26 @@ defmodule Tetris.Game.Piece do
     end)}
   end
 
-  @spec left(piece) :: [piece]
+  @spec left(piece) :: piece
   def left(piece) do
     %{piece | coords: Enum.map(piece.coords, fn c ->
       %{c | x: c.x - 1 }
     end)}
   end
 
+  @spec right(piece) :: piece
   def right(piece) do
     %{piece | coords: Enum.map(piece.coords, fn c ->
       %{c | x: c.x + 1 }
     end)}
   end
 
+  @spec rotate_clockwise(piece) :: piece
   def rotate_clockwise(piece) do
     piece |> reflect_piece |> transpose_piece
   end
 
+  @spec rotate_counter_clockwise(piece) :: piece
   def rotate_counter_clockwise(piece) do
     piece |> mirror_piece |> transpose_piece
   end
@@ -84,15 +92,19 @@ defmodule Tetris.Game.Piece do
     |> update_piece_from_new_points(new_points)
   end
 
+  @spec get_points(piece) :: [point]
   defp get_points(piece), do: Enum.map(piece.coords, fn c -> c.p end)
 
+  @spec mirror_point(point) :: point
   def mirror_point({px, py}), do: {@p_length - px, py}
 
+  @spec reflect_point(point) :: point
   def reflect_point({px, py}), do: {px, @p_length - py}
 
+  @spec transpose_point(tuple) :: tuple
   def transpose_point({px, py}), do: {py, px}
 
-  @spec initial_coords(integer, integer, atom) :: [map]
+  @spec initial_coords(integer, integer, atom) :: [coord]
   defp initial_coords(x_max, y_max, type) do
     start_x = floor(x_max/2) - 2
     start_y = y_max
@@ -115,7 +127,7 @@ defmodule Tetris.Game.Piece do
     end)
   end
 
-  @spec update_piece_from_new_points(piece, [tuple]) :: piece
+  @spec update_piece_from_new_points(piece, [point]) :: piece
   defp update_piece_from_new_points(piece, points) do
     updated_coords = Enum.zip(piece.coords, points)
     |> Enum.map(fn {c, p} ->

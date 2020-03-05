@@ -1,34 +1,45 @@
 defmodule Tetris.Game.Board do
   defstruct rows: [], x_cell_count: 0, y_cell_count: 0, cell_color: :white
 
-  @type board :: %__MODULE__{ rows: [tuple], x_cell_count: integer, y_cell_count: integer }
-  @type row   :: {integer, [cell]}
-  @type cell  :: %{x: integer, y: integer, color: atom}
+  @type board :: %__MODULE__{
+                   rows: [row],
+                   x_cell_count: integer,
+                   y_cell_count: integer
+                 }
+  @type row :: {integer, [cell]}
+  @type cell :: %{x: integer, y: integer, color: atom}
 
   @spec create_new(integer, integer) :: board
   def create_new(x, y) do
     %__MODULE__{
       x_cell_count: x,
       y_cell_count: y
-    } |> create_rows
+    }
+    |> create_rows
   end
 
-  @spec update_cell(board, map) :: board
+  @spec update_cell(board, cell) :: board
   def update_cell(board, cell) do
-    %{board | rows: Enum.map(board.rows, fn row = {y_index, cells} ->
-      if y_index === cell.y do
-        {y_index, Enum.map(cells, fn c -> if is_cell?(c, cell), do: cell, else: c end)}
-      else
-        row
-      end
-    end)}
+    %{
+      board |
+      rows: Enum.map(
+        board.rows,
+        fn row = {y_index, cells} ->
+          if y_index === cell.y do
+            {y_index, Enum.map(cells, fn c -> if is_cell?(c, cell), do: cell, else: c end)}
+          else
+            row
+          end
+        end
+      )
+    }
   end
 
-  @spec update_cells(board, [map]) :: board
+  @spec update_cells(board, [cell]) :: board
   def update_cells(board, []), do: board
   def update_cells(board, [cell | rest]), do: update_cells(update_cell(board, cell), rest)
 
-  @spec get_cells(board) :: [map]
+  @spec get_cells(board) :: [cell]
   def get_cells(board) do
     Enum.reduce(board.rows, [], fn {_, cells}, acc -> acc ++ cells end)
   end
@@ -41,15 +52,19 @@ defmodule Tetris.Game.Board do
   @spec remove_scoring_row_and_adjust(board, integer) :: board
   def remove_scoring_row_and_adjust(board, row_index) do
     updated_rows = board.rows
-    |> Enum.reduce([], fn(row = {i, cells}, acc) ->
-      cond do
-        i === row_index -> acc
-        i < row_index -> acc ++ [row]
-        i > row_index -> acc ++ [{i-1, Enum.map(cells, fn c -> %{c | y: c.y - 1} end)}]
-      end
-    end)
+                   |> Enum.reduce(
+                        [],
+                        fn (row = {i, cells}, acc) ->
+                          cond do
+                            i === row_index -> acc
+                            i < row_index -> acc ++ [row]
+                            i > row_index -> acc ++ [{i - 1, Enum.map(cells, fn c -> %{c | y: c.y - 1} end)}]
+                          end
+                        end
+                      )
 
-    %{board | rows: updated_rows} |> new_top_row
+    %{board | rows: updated_rows}
+    |> new_top_row
   end
 
   # Private
