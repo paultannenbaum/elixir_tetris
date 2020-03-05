@@ -64,7 +64,6 @@ defmodule Tetris.Game do
     %{game | active_piece: new_piece()}
   end
 
-  # UPDATE
   @spec validate_piece_placement(game, piece, atom) :: atom
   defp validate_piece_placement(game, piece, direction) do
     # Game state with old active_piece removed
@@ -76,7 +75,7 @@ defmodule Tetris.Game do
     out_of_x_bounds? = Enum.any?(piece.coords, fn c -> c.x < 0 or c.x > g1.board.x_cell_count end)
     out_of_y_floor? = Enum.any?(piece.coords, fn c -> c.y < 0 end)
     at_y_ciel? = Enum.any?(piece.coords, fn c -> c.y >= @y_cells end)
-    already_occupied_by_another_piece? = Enum.any?(existing_cells, fn c -> c.color !== :white end)
+    already_occupied_by_another_piece? = Enum.any?(existing_cells, fn c -> c.color !== game.board.cell_color end)
     x_move? = (direction === :left or direction === :right)
     y_move? = direction === :down
 
@@ -97,42 +96,30 @@ defmodule Tetris.Game do
     end
   end
 
-  # UPDATE
   @spec set_piece_on_board(game) :: game
   defp set_piece_on_board(game) do
     %{board: b, active_piece: p} = game
 
     update_cells = board_cells_from_piece_coords(b, p) |> Enum.map(fn c -> %{c | color: p.color} end)
-    updated_board = update_board_cells(b, update_cells)
+    updated_board = Board.update_cells(game.board, update_cells)
     %{game | board: updated_board}
   end
 
-  # UPDATE
   @spec remove_piece_from_board(game) :: game
   defp remove_piece_from_board(game) do
     %{board: b, active_piece: p} = game
 
-    update_cells = board_cells_from_piece_coords(b, p) |> Enum.map(fn c -> %{c | color: :white} end)
-    updated_board = update_board_cells(b, update_cells)
+    update_cells = board_cells_from_piece_coords(b, p) |> Enum.map(fn c -> %{c | color: game.board.cell_color} end)
+    updated_board = Board.update_cells(game.board, update_cells)
     %{game | board: updated_board}
   end
 
-  # UPDATE
   # Returns the cells in a board that a piece would occupy
   @spec board_cells_from_piece_coords(board, piece) :: [map]
   defp board_cells_from_piece_coords(board, piece) do
-    pxy = Enum.map(piece.coords, fn %{x: x, y: y} -> %{x: x, y: y} end)
-    Enum.filter(board.cells, fn c -> Enum.member?(pxy, Map.take(c, [:x, :y]))end)
-  end
-
-  # UPDATE
-  # Updates the matching cells in a board with the provided updates cells
-  @spec update_board_cells(board, [map]) :: board
-  defp update_board_cells(board, update_cells) do
-    %{board | cells: Enum.map(board.cells, fn c ->
-      update_cell = Enum.find(update_cells, fn(uc) -> uc.x === c.x && uc.y === c.y end)
-      if (update_cell), do: update_cell, else: c
-    end)}
+    Enum.filter(Board.get_cells(board), fn c ->
+      piece.coords |> Enum.any?(fn pc -> Board.is_cell?(c, pc) end)
+    end)
   end
 
   @spec game_over(game) :: game

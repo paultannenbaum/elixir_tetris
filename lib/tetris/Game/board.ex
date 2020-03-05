@@ -24,9 +24,19 @@ defmodule Tetris.Game.Board do
     end)}
   end
 
-  @spec update_cells(board, [any]) :: board
+  @spec update_cells(board, [map]) :: board
   def update_cells(board, []), do: board
   def update_cells(board, [cell | rest]), do: update_cells(update_cell(board, cell), rest)
+
+  @spec get_cells(board) :: [map]
+  def get_cells(board) do
+    Enum.reduce(board.rows, [], fn {_, cells}, acc -> acc ++ cells end)
+  end
+
+  @spec is_cell?(cell, cell) :: boolean
+  def is_cell?(c1, c2) do
+    c1.x === c2.x && c1.y === c2.y
+  end
 
   @spec remove_scoring_row_and_adjust(board, integer) :: board
   def remove_scoring_row_and_adjust(board, row_index) do
@@ -52,11 +62,6 @@ defmodule Tetris.Game.Board do
   defp create_rows(board) do
     rows = for y <- 0..board.y_cell_count, do: create_row(board.x_cell_count, y, board.cell_color)
     %{board | rows: rows}
-  end
-
-  @spec is_cell?(cell, cell) :: boolean
-  defp is_cell?(c1, c2) do
-    c1.x === c2.x && c1.y === c2.y
   end
 
   @spec new_top_row(board) :: board

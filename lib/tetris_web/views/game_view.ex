@@ -1,9 +1,11 @@
 defmodule TetrisWeb.GameView do
   use TetrisWeb, :view
 
+  alias Tetris.Game.Board
+
   # translates board object into something the DOM can understand
   def board_as_html(game) do
-    game.board.cells
+    Board.get_cells(game.board)
     |> Enum.sort(&(&1.y >= &2.y))
     |> Enum.map(fn %{x: x, y: y, color: color} ->
       content_tag :span, "", [{:data, [x: x]}, {:data, [y: y]}, class: "cell #{to_string color}"] end)
