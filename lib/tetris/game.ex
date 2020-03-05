@@ -17,8 +17,8 @@ defmodule Tetris.Game do
   @type board :: %Board{}
   @type piece :: %Piece{}
 
-  @x_cells 10
-  @y_cells 20
+  @x_cells 15
+  @y_cells 20 
 
   @spec new_game() :: game
   def new_game() do
@@ -40,11 +40,18 @@ defmodule Tetris.Game do
 
     # Validate new state
     case validate_piece_placement(game, piece, direction) do
-      {:ok, game} -> game |> set_piece_on_board
-      {:error, game, "Game over"} -> game |> game_over
-#      {:error, game, "Invalid y movement"} -> game |> scan_rows_for_scoring_move |> add_new_piece_to_board
-      {:error, game, "Invalid y movement"} -> game |> add_new_piece_to_board
-      {:error, game, _} -> game
+      {:ok, game} ->
+        game
+        |> set_piece_on_board
+      {:error, game, "Game over"} ->
+        game
+        |> game_over
+      {:error, game, "Invalid y movement"} ->
+        game
+        |> scan_rows_for_scoring_move
+        |> add_new_piece_to_board
+      {:error, game, _} ->
+        game
     end
   end
 
@@ -132,36 +139,18 @@ defmodule Tetris.Game do
     %{game | score: game.score + 100}
   end
 
-  # UPDATE
-  defp remove_scoring_row(game, row_key) do
-    updated_cells =
-      game.board.cells
-      |> Board.cells_by_row
-      |> Enum.filter(fn {r_key, _} -> r_key !== row_key end)
-      |> Enum.map(fn {r_key, cells} ->
-        IO.inspect(cells)
-        if (r_key > row_key) do
-          updated_cells = Enum.map(cells, fn c -> %{c | y: c.y - 1 } end)
-          {r_key, updated_cells}
-        else
-          {r_key, cells}
-        end
-      end)
-      |> Board.cells_by_row_unfolded
-
-    %{game | board: %{game.board | cells: updated_cells}}
-  end
-
   defp scan_rows_for_scoring_move(game) do
-    rows = game.board.cells |> Board.cells_by_row
-    game |> scan_rows_for_scoring_move(rows)
+    game |> scan_rows_for_scoring_move(game.board.rows)
   end
   defp scan_rows_for_scoring_move(game, []), do: game
-  defp scan_rows_for_scoring_move(game, [{row_key, cells} | rows]) do
-    scoring_move? = cells |> Enum.all?(fn c -> c.color !== :white end)
+  defp scan_rows_for_scoring_move(game, [{row_index, cells} | rows]) do
+    scoring_move? = cells |> Enum.all?(fn c -> c.color !== game.board.cell_color end)
 
     if scoring_move? do
-      updated_game = game |> remove_scoring_row(row_key) |> increment_game_score
+      updated_game = %{
+        game |> increment_game_score |
+        board: Board.remove_scoring_row_and_adjust(game.board, row_index)}
+
       scan_rows_for_scoring_move(updated_game)
     else
       scan_rows_for_scoring_move(game, rows)
