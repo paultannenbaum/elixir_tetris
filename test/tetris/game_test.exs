@@ -7,26 +7,28 @@ defmodule Tetris.GameTest do
 
   describe "Game" do
     test "creating a new game" do
-      expected = %Board{
-        board_status: 'open',
-        cells: [%{color: :white, x: 0, y: 0}, %{color: :white, x: 0, y: 1}, %{color: :white, x: 0, y: 2}, %{color: :white, x: 0, y: 3}, %{color: :white, x: 1, y: 0}, %{color: :white, x: 1, y: 1}, %{color: :white, x: 1, y: 2}, %{color: :white, x: 1, y: 3}, %{color: :white, x: 2, y: 0}, %{color: :white, x: 2, y: 1}, %{color: :white, x: 2, y: 2}, %{color: :white, x: 2, y: 3}],
-        score: 0
-      }
+      game = Game.new_game(2,2)
 
-      assert Game.new_board(2, 3) == expected
+      assert %Game{}  = game
+      assert %Board{} = game.board
     end
 
-    test "creating a new piece" do
-      new_piece = Game.new_piece()
+    test "starting a new game" do
+      game = Game.new_game(2,2)
 
-      assert Enum.member?([:i, :t, :z, :l], new_piece.type)
-      assert %Piece{} = new_piece
+      assert game.status === :closed
+      assert game.score === nil
+      assert game.active_piece === nil
+
+      game = Game.start_game(game)
+
+      assert game.status === :open
+      assert game.score === 0
+      assert %Piece{} = game.active_piece
     end
 
-    test "moving a piece down" do
-      new_piece = Game.new_piece()
-
-
+    @tag :pending_test
+    test "moving a piece" do
     end
   end
 end

@@ -11,7 +11,7 @@ Feature List:
 - A line across the screen will be removed and add points to user
 - When pieces reach top of board, game is over
 - The entire game loop will happen in live view
-- Try and do as much via TDD as possible
+- Try and do as much via TDD as possible ** update: Didn't happen, maybe backfill tests :(
 
 Most likely will not be included:
 - Piece speedup as user progresses
@@ -21,11 +21,11 @@ Milestones:
 
 1) [x] Render Board to DOM
 
-2) [ ] Render Piece inside of Board/ Piece falls down the board
+2) [x] Render Piece inside of Board/ Piece falls down the board
 
-3) [ ] Piece logic: movable and rotatable by user
+3) [x] Piece logic: movable and rotatable by user
 
-4) [ ] Board Logic: allowing pieces to fit, removing lines, etc. 
+4) [x] Board Logic: allowing pieces to fit, removing lines, etc. 
 
 # Running the game
 

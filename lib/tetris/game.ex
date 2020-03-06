@@ -23,12 +23,9 @@ defmodule Tetris.Game do
   @type board :: %Board{}
   @type piece :: %Piece{}
 
-  @x_cells 15
-  @y_cells 20 
-
-  @spec new_game() :: game
-  def new_game() do
-    %__MODULE__{board: Board.create_new(@x_cells, @y_cells)}
+  @spec new_game(integer, integer) :: game
+  def new_game(x_cells \\ 15, y_cells \\ 20) do
+    %__MODULE__{board: Board.create_new(x_cells, y_cells)}
   end
 
   @spec start_game(game) :: game
@@ -62,19 +59,19 @@ defmodule Tetris.Game do
   end
 
   # Private
-  @spec new_piece() :: piece
-  defp new_piece() do
-    Piece.create_new(@x_cells, @y_cells)
+  @spec new_piece(game) :: piece
+  defp new_piece(game) do
+    Piece.create_new(game.board.x_cell_count, game.board.y_cell_count)
   end
 
   @spec add_initial_piece_to_board(game) :: game
   defp add_initial_piece_to_board(game) do
-    %{game | active_piece: new_piece()}
+    %{game | active_piece: new_piece(game)}
   end
 
   @spec add_new_piece_to_board(game) :: game
   defp add_new_piece_to_board(game) do
-    %{game | active_piece: new_piece()}
+    %{game | active_piece: new_piece(game)}
   end
 
   @spec validate_piece_placement(game, piece, atom) :: {:ok, game} | {:error, game, String.t()}
@@ -87,7 +84,7 @@ defmodule Tetris.Game do
 
     out_of_x_bounds? = Enum.any?(piece.coords, fn c -> c.x < 0 or c.x > g1.board.x_cell_count end)
     out_of_y_floor? = Enum.any?(piece.coords, fn c -> c.y < 0 end)
-    at_y_ciel? = Enum.any?(piece.coords, fn c -> c.y >= @y_cells end)
+    at_y_ciel? = Enum.any?(piece.coords, fn c -> c.y >= g1.board.y_cell_count end)
     already_occupied_by_another_piece? = Enum.any?(existing_cells, fn c -> c.color !== game.board.cell_color end)
     x_move? = (direction === :left or direction === :right)
     y_move? = direction === :down
