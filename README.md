@@ -35,4 +35,6 @@ To start your Phoenix server:
 * Install Node.js dependencies with `cd assets && npm install`
 * Start Phoenix endpoint with `mix phx.server`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Game should be playable at [`localhost:4000`](http://localhost:4000). To move the piece around the board, use the arrow keys, 
+The `A` and `S` keyboard keys can be used to rotate the piece. There is still some additional work I need to do to get the rotation pieces
+working exactly like the real game, and I think I am missing a couple pieces, but this is more of a proof of concept than anything else.
