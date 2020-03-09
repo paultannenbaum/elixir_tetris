@@ -53,6 +53,7 @@ defmodule Tetris.Game do
         game
         |> scan_rows_for_scoring_move
         |> add_new_piece_to_board
+        |> set_piece_on_board
       {:error, game, _} ->
         game
     end
@@ -81,17 +82,18 @@ defmodule Tetris.Game do
 
     # Existing cells the piece would move onto
     existing_cells = board_cells_from_piece_coords(g1.board, piece)
-
     out_of_x_bounds? = Enum.any?(piece.coords, fn c -> c.x < 1 or c.x > g1.board.x_cell_count end)
     out_of_y_floor? = Enum.any?(piece.coords, fn c -> c.y < 1 end)
-    at_y_ciel? = Enum.any?(piece.coords, fn c -> c.y >= g1.board.y_cell_count end)
+    at_y_ciel? = Enum.any?(piece.coords, fn c -> c.y >= g1.board.y_cell_count - 1 end)
     already_occupied_by_another_piece? = Enum.any?(existing_cells, fn c -> c.color !== game.board.cell_color end)
     x_move? = (direction === :left or direction === :right)
     y_move? = direction === :down
 
     # Test various failure scenarios, otherwise return updated board
     cond do
-      already_occupied_by_another_piece? and at_y_ciel?  -> {:error, game, "Game over"}
+      already_occupied_by_another_piece? and at_y_ciel?  ->
+        IO.puts('GAME OVER')
+        {:error, game, "Game over"}
       out_of_x_bounds? -> {:error, game, "Invalid x movement"}
       out_of_y_floor? -> {:error, game, "Invalid y movement"}
       already_occupied_by_another_piece? and x_move? ->
@@ -133,7 +135,6 @@ defmodule Tetris.Game do
 
   @spec game_over(game) :: game
   defp game_over(game) do
-    IO.puts("GAME OVER")
     %{game | status: :closed}
   end
 
