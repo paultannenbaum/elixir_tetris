@@ -15,10 +15,10 @@ defmodule TetrisWeb.GameView do
       content_tag :span, "", [{:data, [x: x]}, {:data, [y: y]}, class: "cell #{to_string color}"] end)
   end
 
-  # Calculates the total width of the board, adds 1 because cells are zero indexed
+  # Calculates the total width of the board
   @spec board_width(game) :: String.t()
   def board_width(game) do
     cell_width_in_pixels = 20
-    "#{(game.board.x_cell_count + 1) * cell_width_in_pixels}px"
+    "#{(game.board.x_cell_count) * cell_width_in_pixels}px"
   end
 end

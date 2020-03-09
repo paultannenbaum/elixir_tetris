@@ -70,12 +70,12 @@ defmodule Tetris.Game.Board do
   # Private
   @spec create_row(integer, integer, atom) :: row
   defp create_row(x, y, color) do
-    {y, Enum.map(0..x, fn x -> %{x: x, y: y, color: color} end)}
+    {y, Enum.map(1..x, fn x -> %{x: x, y: y, color: color} end)}
   end
 
   @spec create_rows(board) :: board
   defp create_rows(board) do
-    rows = for y <- 0..board.y_cell_count, do: create_row(board.x_cell_count, y, board.cell_color)
+    rows = for y <- 1..board.y_cell_count, do: create_row(board.x_cell_count, y, board.cell_color)
     %{board | rows: rows}
   end
 

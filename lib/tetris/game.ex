@@ -82,8 +82,8 @@ defmodule Tetris.Game do
     # Existing cells the piece would move onto
     existing_cells = board_cells_from_piece_coords(g1.board, piece)
 
-    out_of_x_bounds? = Enum.any?(piece.coords, fn c -> c.x < 0 or c.x > g1.board.x_cell_count end)
-    out_of_y_floor? = Enum.any?(piece.coords, fn c -> c.y < 0 end)
+    out_of_x_bounds? = Enum.any?(piece.coords, fn c -> c.x < 1 or c.x > g1.board.x_cell_count end)
+    out_of_y_floor? = Enum.any?(piece.coords, fn c -> c.y < 1 end)
     at_y_ciel? = Enum.any?(piece.coords, fn c -> c.y >= g1.board.y_cell_count end)
     already_occupied_by_another_piece? = Enum.any?(existing_cells, fn c -> c.color !== game.board.cell_color end)
     x_move? = (direction === :left or direction === :right)
