@@ -11,7 +11,6 @@ Feature List:
 - A line across the screen will be removed and add points to user
 - When pieces reach top of board, game is over
 - The entire game loop will happen in live view
-- Try and do as much via TDD as possible ** update: Didn't happen, maybe backfill tests :(
 
 Most likely will not be included:
 - Piece speedup as user progresses
@@ -26,6 +25,14 @@ Milestones:
 3) [x] Piece logic: movable and rotatable by user
 
 4) [x] Board Logic: allowing pieces to fit, removing lines, etc. 
+
+5) [ ] Break up app into components, learn about passing state down the component tree
+
+6) [ ] Deploy application to digital ocean, learn about deployments
+
+7) [ ] Add some kind of functionality that takes advantage of Genserver, learn actor model
+
+8) [ ] Add test coverage
 
 # Running the game
 
