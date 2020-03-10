@@ -48,14 +48,18 @@ h1 {
     background: red;
 }
 
-.yellow {
-    background: yellow;
-}
-
 .purple {
     background: purple;
 }
 
 .orange {
     background: orange;
+}
+
+.yellow {
+    background: darkgoldenrod;
+}
+
+.teal {
+    background: teal;
 }

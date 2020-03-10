@@ -19,11 +19,14 @@ defmodule Tetris.Game.Piece do
   @type point :: {integer, integer}
 
   @piece_types [
-    %{type: :i, color: :blue, point_grid_length: 4},
+    %{type: :i, color: :blue,   point_grid_length: 4},
     %{type: :t, color: :purple, point_grid_length: 3},
-    %{type: :z, color: :green, point_grid_length: 3},
-    %{type: :l, color: :red, point_grid_length: 3},
-    %{type: :o, color: :orange, point_grid_length: 3}]
+    %{type: :z, color: :green,  point_grid_length: 3},
+    %{type: :l, color: :red,    point_grid_length: 3},
+    %{type: :o, color: :orange, point_grid_length: 3},
+    %{type: :s, color: :yellow, point_grid_length: 3},
+    %{type: :j, color: :teal,   point_grid_length: 3}
+  ]
 
   @spec create_new(integer, integer) :: piece
   def create_new(x_max, y_max), do: create_new(x_max, y_max, Enum.random(@piece_types))
@@ -114,8 +117,10 @@ defmodule Tetris.Game.Piece do
       :i -> [{2,1},{2,2},{2,3},{2,4}]
       :t -> [{1,1},{2,1},{3,1},{2,2}]
       :z -> [{1,2},{2,2},{2,1},{3,1}]
-      :l -> [{1,1},{1,2},{1,3},{2,1}]
+      :l -> [{2,1},{2,2},{2,3},{3,1}]
       :o -> [{1,1},{1,2},{2,1},{2,2}]
+      :s -> [{1,1},{2,1},{2,2},{3,2}]
+      :j -> [{1,1},{2,1},{2,2},{2,3}]
     end
 
     shape_points
