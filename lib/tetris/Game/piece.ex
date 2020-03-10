@@ -3,27 +3,27 @@ defmodule Tetris.Game.Piece do
   Provides all logic around creating and manipulating a tetris game piece (also known as a tetrominoe)
   """
 
-  @enforce_keys [:coords, :color, :type]
+  @enforce_keys [:coords, :color, :type, :point_grid_length]
   defstruct type: :i,
             color: :blue,
+            point_grid_length: 3,
             coords: []
 
   @type piece :: %__MODULE__{
                type: atom,
                color: atom,
+               point_grid_length: integer,
                coords: [coord]
              }
   @type coord :: %{x: integer, y: integer, p: [point]}
   @type point :: {integer, integer}
 
   @piece_types [
-    %{type: :i, color: :blue},
-    %{type: :t, color: :purple},
-    %{type: :z, color: :green},
-    %{type: :l, color: :red},
-    %{type: :o, color: :orange}]
-
-  @p_length 3
+    %{type: :i, color: :blue, point_grid_length: 4},
+    %{type: :t, color: :purple, point_grid_length: 3},
+    %{type: :z, color: :green, point_grid_length: 3},
+    %{type: :l, color: :red, point_grid_length: 3},
+    %{type: :o, color: :orange, point_grid_length: 3}]
 
   @spec create_new(integer, integer) :: piece
   def create_new(x_max, y_max), do: create_new(x_max, y_max, Enum.random(@piece_types))
@@ -33,7 +33,8 @@ defmodule Tetris.Game.Piece do
     %__MODULE__{
       type: t.type,
       color: t.color,
-      coords: initial_coords(x_max, y_max, t.type),
+      point_grid_length: t.point_grid_length,
+      coords: initial_coords(x_max, y_max, t.type)
     }
   end
 
@@ -70,7 +71,7 @@ defmodule Tetris.Game.Piece do
 
   @spec mirror_piece(piece) :: piece
   defp mirror_piece(piece) do
-    new_points = get_points(piece) |> Enum.map(&mirror_point/1)
+    new_points = get_points(piece) |> Enum.map(&(mirror_point(&1, piece.point_grid_length)))
 
     piece
     |> update_piece_from_new_points(new_points)
@@ -78,7 +79,7 @@ defmodule Tetris.Game.Piece do
 
   @spec reflect_piece(piece) :: piece
   defp reflect_piece(piece) do
-    new_points = get_points(piece) |> Enum.map(&reflect_point/1)
+    new_points = get_points(piece) |> Enum.map(&(reflect_point(&1, piece.point_grid_length)))
 
     piece
     |> update_piece_from_new_points(new_points)
@@ -95,26 +96,26 @@ defmodule Tetris.Game.Piece do
   @spec get_points(piece) :: [point]
   defp get_points(piece), do: Enum.map(piece.coords, fn c -> c.p end)
 
-  @spec mirror_point(point) :: point
-  def mirror_point({px, py}), do: {@p_length - px, py}
+  @spec mirror_point(point, integer) :: point
+  def mirror_point({px, py}, point_grid_length), do: {point_grid_length - px, py}
 
-  @spec reflect_point(point) :: point
-  def reflect_point({px, py}), do: {px, @p_length - py}
+  @spec reflect_point(point, integer) :: point
+  def reflect_point({px, py}, point_grid_length), do: {px, point_grid_length - py}
 
-  @spec transpose_point(tuple) :: tuple
+  @spec transpose_point(point) :: tuple
   def transpose_point({px, py}), do: {py, px}
 
   @spec initial_coords(integer, integer, atom) :: [coord]
   defp initial_coords(x_max, y_max, type) do
-    start_x = floor(x_max/2) - 2
-    start_y = y_max
+    start_x = (floor(x_max/2) - 2) + 1
+    start_y = y_max + 1
 
     shape_points = case type do
-      :i -> [{2,0},{2,1},{2,2},{2,3}]
-      :t -> [{2,0},{1,1},{2,1},{3,1}]
-      :z -> [{1,0},{2,0},{2,1},{3,1}]
-      :l -> [{2,0},{2,1},{2,2},{3,2}]
-      :o -> [{1,0},{2,0},{1,1},{2,1}]
+      :i -> [{2,1},{2,2},{2,3},{2,4}]
+      :t -> [{1,1},{2,1},{3,1},{2,2}]
+      :z -> [{1,2},{2,2},{2,1},{3,1}]
+      :l -> [{1,1},{1,2},{1,3},{2,1}]
+      :o -> [{1,1},{1,2},{2,1},{2,2}]
     end
 
     shape_points
