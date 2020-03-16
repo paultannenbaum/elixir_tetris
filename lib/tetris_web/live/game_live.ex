@@ -4,7 +4,6 @@ defmodule TetrisWeb.GameLive do
     into actions taken by the Game context. No actual game logic should be handled by this module,
     instead this should be pushed into the Game context.
   """
-
   use Phoenix.LiveView
 
   alias Tetris.Game
