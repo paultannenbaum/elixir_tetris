@@ -37,6 +37,16 @@ defmodule TetrisWeb.GameLive do
       >
         <%= GameView.board_as_html(@game) %>
       </div>
+
+      <div>
+        <h4>Instructions:</h4>
+          <p>
+          Use the arrow keys to move the piece around the board.</br>
+          Keyboard key "A" rotates the piece counter clockwise.</br>
+          Keyboard key "S" rotates the piece clockwise.
+          </p>
+      </div>
+
       <%= if @game.status === :open do %>
         <span phx-click="stop_game" class="cancel-game">cancel game</span>
       <% end %>
