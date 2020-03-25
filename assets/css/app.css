@@ -63,3 +63,11 @@ h1 {
 .teal {
     background: teal;
 }
+
+.cancel-game {
+  cursor: pointer;
+  text-align: left;
+  font-size: 10px;
+  font-weight: bold;
+  margin: 0
+}

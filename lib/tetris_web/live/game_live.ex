@@ -37,7 +37,11 @@ defmodule TetrisWeb.GameLive do
       >
         <%= GameView.board_as_html(@game) %>
       </div>
+      <%= if @game.status === :open do %>
+        <span phx-click="stop_game" class="cancel-game">cancel game</span>
+      <% end %>
     </div>
+
     """
   end
 
@@ -63,6 +67,10 @@ defmodule TetrisWeb.GameLive do
   def handle_event("start_game", _, socket) do
     Process.send(self(), :game_loop, [])
     {:noreply, assign(socket, game: Game.new_game() |> Game.start_game)}
+  end
+
+  def handle_event("stop_game", _, socket) do
+    {:noreply, assign(socket, game: Game.new_game())}
   end
 
   def handle_event("key_event", %{"code" => "ArrowLeft"}, socket), do: move_piece(socket, :left)
